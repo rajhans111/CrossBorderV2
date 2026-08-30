@@ -6,6 +6,9 @@ export default {
       colors: {
         primary: "#0e7c86",
       },
+      fontFamily: {
+        display: ["'Playfair Display'", "serif"],
+      },
     },
   },
   plugins: [],

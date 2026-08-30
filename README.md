@@ -19,9 +19,12 @@ npm run dev
 - Server: http://localhost:4000 (health check at `/api/health`)
 - Client: http://localhost:5173 (proxies `/api/*` to the server)
 
-Open http://localhost:5173 — it redirects to the exporter dashboard. Switch to
-**Admin** via the top bar, or open a buyer's magic link (copy it from an
-order's detail page, or from the orders list) to see the buyer portal.
+Open http://localhost:5173 — it opens the marketing landing page. Click
+**Register** or **Login** (cosmetic demo gate — no real password auth, per
+spec; submitting either just drops you into the exporter dashboard) to reach
+the app. From there, switch to **Admin** via the top bar, or open a buyer's
+magic link (copy it from an order's detail page, or from the orders list) to
+see the buyer portal.
 
 ## Verifying
 
@@ -116,13 +119,32 @@ POST /api/admin/reset
 - **M5 — Admin/ops** (done): KYC queue, escrow SLA monitoring, AML/screening, unmatched VA-credit reconciliation, privileged audit trail, persistent DEMO MODE bar.
 - **M6 — Tests, polish, deploy** (done): FSM + escrow + FX + full-workflow tests (29 total), single-service production serving, `render.yaml`.
 
+## Landing page, auth gate, and multi-currency
+
+Beyond the original milestones, this now also has:
+
+- **Marketing landing page** (`/`) modeled on the Xinto reference demo —
+  hero, problem statement, how-it-works, features, FX comparison table,
+  security, pricing, persona, FAQ, footer.
+- **Login/Register** (`/login`, `/register`) — a **cosmetic** demo gate only.
+  Per the spec's explicit "no real password auth yet" for this MVP, these
+  forms don't validate or store anything; submitting either just navigates
+  into the exporter dashboard. There is no session and no route guard —
+  `/exporter/*` is still directly reachable.
+- **Multi-currency**: SGD, USD, EUR, GBP, AED, AUD are all fully functional.
+  `TradeOrder`/`EscrowPosition`/`Invoice`/`FxQuote` all carry a `currency`
+  field; the exporter has one `VirtualAccount` per currency (seeded on
+  boot); `FxService` has a per-currency base rate + jitter to INR. The 8
+  original seed orders stay SGD, preserving the spec's exact literal figures
+  (152,900 escrow, 7 active orders) — new orders can pick any of the six.
+
 ## Known limitations (MVP scope)
 
 - No visual/browser testing was performed on the UI in this session (built,
   typechecked, and served correctly; click through it yourself before
   relying on it).
-- No real auth — role switch is just navigation; the buyer portal's only
-  "auth" is the unguessable token in the URL, per spec.
+- Login/Register are cosmetic only (see above) — this was an explicit choice
+  to match the spec's MVP auth constraint rather than build real accounts.
 - "Received this month" / "FX saved this month" on the dashboard are computed
   live from FX settlements that happen during the current server session
   (the seed's one pre-completed order predates any live FX quote, so it

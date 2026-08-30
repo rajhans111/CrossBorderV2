@@ -10,11 +10,15 @@ import { VirtualAccountPage } from "./pages/exporter/VirtualAccountPage";
 import { AdminOverview } from "./pages/admin/AdminOverview";
 import { BuyerPortal } from "./pages/buyer/BuyerPortal";
 import { BuyerWorkspace } from "./pages/buyer/BuyerWorkspace";
+import { Landing } from "./pages/marketing/Landing";
+import { AuthGate } from "./pages/marketing/AuthGate";
 
 export function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/exporter/dashboard" replace />} />
+      <Route path="/" element={<Landing />} />
+      <Route path="/login" element={<AuthGate mode="login" />} />
+      <Route path="/register" element={<AuthGate mode="register" />} />
 
       <Route path="/exporter" element={<ExporterShell />}>
         <Route path="dashboard" element={<Dashboard />} />
@@ -32,7 +36,7 @@ export function App() {
       <Route path="/buyer/:token" element={<BuyerPortal />} />
       <Route path="/buyer-workspace/:token" element={<BuyerWorkspace />} />
 
-      <Route path="*" element={<Navigate to="/exporter/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
