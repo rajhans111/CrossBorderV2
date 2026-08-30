@@ -210,7 +210,11 @@ export function loadSeed(store: Store): void {
     msmeUdyam: "UDYAM-TN-03-0012345",
     city: "Tirupur",
     industry: "Textile",
-    linkedBankAccount: "HDFC0001234 (Demo)",
+    directorName: "Rajesh Mehta",
+    directorPan: "AAAPM1234A",
+    bankAccountNo: "50100123456789",
+    ifsc: "HDFC0001234",
+    bankName: "HDFC Bank (Demo)",
     virtualAccounts: VIRTUAL_ACCOUNTS,
   });
 

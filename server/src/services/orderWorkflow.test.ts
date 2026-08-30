@@ -20,7 +20,11 @@ function seedReadyOrder(store: Store) {
     city: "Tirupur",
     industry: "Textile",
     kycStatus: "Approved",
-    linkedBankAccount: "demo",
+    directorName: "Test Director",
+    directorPan: "AAAPT1234A",
+    bankAccountNo: "demo",
+    ifsc: "HDFC0001234",
+    bankName: "demo",
     virtualAccountId: virtualAccount.id,
   });
   const buyer = store.createBuyer({

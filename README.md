@@ -224,14 +224,32 @@ orders, 152,900 SGD in escrow) through this path.
 
 The exporter's **Onboarding** page (`/exporter/onboarding`) is rebuilt to
 match a tabbed 4-step wizard (Business → Director KYC → Bank account →
-Review, plus a "Profile summary" view) instead of a flat checklist. Since
-this exporter is already onboarded, the page runs in a locked "Preview
-mode" — every field is pre-filled and disabled, showing what a new exporter
-would have filled in to reach this state. A few fields the domain model
-doesn't carry (director name, INR bank account number) are shown as fixed
-demo values — see the comment in `Onboarding.tsx` — since adding a full
-director/bank-account entity is out of scope for what's otherwise a
-read-only preview of a flow that already ran.
+Review, plus a "Profile summary" view) instead of a flat checklist.
+`Exporter` gained real `directorName`, `directorPan`, `bankAccountNo`,
+`ifsc`, and `bankName` fields (replacing the old single `linkedBankAccount`
+string) so every field in the wizard is backed by actual domain data, not a
+UI-only demo constant.
+
+**The wizard is editable, not a locked preview.** Every field starts
+pre-filled from the current exporter (so you always see real data, not a
+blank form), but you can change any of it and hit "Submit onboarding" on the
+Review step to save. This calls a new `POST /api/exporter/onboarding`
+(`updateOnboarding()` in `onboardingService.ts`), which validates every
+required field is non-empty, updates the singleton exporter's profile in
+place, and records an `onboarding.updated` audit event with before/after
+state. It's an edit to the one demo exporter, not a second exporter — this
+is a single-tenant demo where trade orders, escrow, and the dashboard are
+all scoped to "the" exporter, so a true multi-tenant "onboard a brand new
+company" flow is out of scope; provisioning virtual accounts only happens
+once, via `completeOnboarding()` at seed time (above) — editing the profile
+here doesn't re-provision them.
+
+Verified live: submitting new company/director/bank details updates the
+exporter returned by `GET /api/exporter/dashboard` immediately, records the
+`onboarding.updated` audit event with the old and new values, rejects a
+request missing a required field with `400 VALIDATION_ERROR`, and
+`POST /api/admin/reset` still restores the original seeded profile
+afterwards.
 
 ## Known limitations (MVP scope)
 

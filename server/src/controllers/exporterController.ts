@@ -1,10 +1,16 @@
 import type { Request, Response } from "express";
 import { store } from "../store/singleton.js";
 import { getExporterDashboard } from "../services/dashboardService.js";
+import { updateOnboarding, type OnboardingProfile } from "../services/onboardingService.js";
 import { NotFoundError } from "../errors.js";
 
 export function getDashboard(_req: Request, res: Response): void {
   res.json(getExporterDashboard(store));
+}
+
+export function postOnboarding(req: Request, res: Response): void {
+  const exporter = updateOnboarding(store, req.body as OnboardingProfile);
+  res.json(exporter);
 }
 
 export function getBuyers(_req: Request, res: Response): void {

@@ -9,6 +9,10 @@ export interface Exporter {
   city: string;
   industry: string;
   kycStatus: KycStatus;
-  linkedBankAccount: string;
+  directorName: string;
+  directorPan: string;
+  bankAccountNo: string;
+  ifsc: string;
+  bankName: string;
   virtualAccountId: string;
 }

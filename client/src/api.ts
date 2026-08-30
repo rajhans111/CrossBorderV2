@@ -75,6 +75,20 @@ export interface AdminOverview {
   auditTrail: AuditEvent[];
 }
 
+export interface OnboardingSubmission {
+  companyName: string;
+  gstin: string;
+  iec: string;
+  msmeUdyam: string;
+  city: string;
+  industry: string;
+  directorName: string;
+  directorPan: string;
+  bankAccountNo: string;
+  ifsc: string;
+  bankName: string;
+}
+
 export interface CreateOrderPayload {
   buyerId: string;
   product: string;
@@ -139,6 +153,8 @@ export const api = {
   getDashboard: () => request<ExporterDashboard>("/exporter/dashboard"),
   getVirtualAccounts: () => request<{ accounts: VirtualAccountView[] }>("/exporter/virtual-account"),
   getBuyers: () => request<Buyer[]>("/exporter/buyers"),
+  submitOnboarding: (payload: OnboardingSubmission) =>
+    request<Exporter>("/exporter/onboarding", { method: "POST", body: JSON.stringify(payload) }),
 
   // Buyer (magic link)
   getBuyerPortal: (token: string) => request<BuyerPortalView>(`/buyer/${token}`),
