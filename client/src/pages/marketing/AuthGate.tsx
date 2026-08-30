@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { XintoMark } from "../../components/XintoMark";
+import xintoLogo from "../../assets/xinto-logo.png";
 
 interface AuthGateProps {
   mode: "login" | "register";
@@ -27,9 +27,8 @@ export function AuthGate({ mode }: AuthGateProps) {
     <div className="flex min-h-screen items-center justify-center bg-[#faf9f6] px-4">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <Link to="/" className="inline-flex items-center gap-2 text-xl font-semibold text-primary">
-            <XintoMark />
-            Xinto
+          <Link to="/" className="inline-flex items-center">
+            <img src={xintoLogo} alt="Xinto" className="h-8 w-auto" />
           </Link>
           <p className="mt-1 text-sm text-gray-500">
             {isRegister ? "Create your exporter account" : "Welcome back"}

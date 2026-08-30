@@ -6,8 +6,8 @@ import { api } from "../../api";
 import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
-import { XintoMark } from "../../components/XintoMark";
 import { formatMoney } from "../../lib/format";
+import xintoLogo from "../../assets/xinto-logo.png";
 
 const DISPUTE_REASONS: { value: DisputeReason; label: string }[] = [
   { value: "goods_not_received", label: "Goods not received" },
@@ -47,9 +47,8 @@ export function BuyerPortal() {
     <div className="min-h-screen bg-gray-50 px-4 py-8">
       <div className="mx-auto max-w-lg space-y-6">
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center gap-2 text-lg font-semibold text-primary hover:opacity-80">
-            <XintoMark />
-            Xinto
+          <Link to="/" className="inline-flex items-center hover:opacity-80">
+            <img src={xintoLogo} alt="Xinto" className="h-6 w-auto" />
           </Link>
           <p className="text-sm text-gray-500">Buyer portal</p>
         </div>

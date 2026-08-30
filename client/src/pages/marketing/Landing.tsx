@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CURRENCIES } from "@setu/types";
-import { XintoMark } from "../../components/XintoMark";
+import xintoLogo from "../../assets/xinto-logo.png";
 
 const NAV_LINKS = [
   { href: "#how-it-works", label: "How It Works" },
@@ -158,9 +158,8 @@ export function Landing() {
       {/* Nav */}
       <header className="sticky top-0 z-10 border-b border-gray-200 bg-[#faf9f6]/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link to="/" className="flex items-center gap-2 text-xl font-semibold text-primary hover:opacity-80">
-            <XintoMark />
-            Xinto
+          <Link to="/" className="flex items-center hover:opacity-80">
+            <img src={xintoLogo} alt="Xinto" className="h-7 w-auto" />
           </Link>
           <nav className="hidden gap-6 text-sm text-gray-600 md:flex">
             {NAV_LINKS.map((link) => (
@@ -522,9 +521,8 @@ export function Landing() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <Link to="/" className="flex items-center gap-2 text-lg font-semibold text-primary hover:opacity-80">
-                <XintoMark />
-                Xinto
+              <Link to="/" className="flex items-center hover:opacity-80">
+                <img src={xintoLogo} alt="Xinto" className="h-6 w-auto" />
               </Link>
               <p className="mt-2 text-sm text-gray-500">
                 A cross-border trade + payment platform demo for Indian MSME exporters. Mock services only — no
