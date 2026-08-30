@@ -87,6 +87,7 @@ export interface OnboardingSubmission {
   bankAccountNo: string;
   ifsc: string;
   bankName: string;
+  settlementCurrency: Currency;
 }
 
 export interface CreateOrderPayload {

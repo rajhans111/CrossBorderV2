@@ -215,6 +215,7 @@ export function loadSeed(store: Store): void {
     bankAccountNo: "50100123456789",
     ifsc: "HDFC0001234",
     bankName: "HDFC Bank (Demo)",
+    settlementCurrency: "SGD",
     virtualAccounts: VIRTUAL_ACCOUNTS,
   });
 

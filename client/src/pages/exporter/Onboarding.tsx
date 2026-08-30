@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CURRENCIES, type Currency } from "@setu/types";
 import { useEffect, useState } from "react";
-import { api, ApiError, type ExporterDashboard, type OnboardingSubmission } from "../../api";
+import { api, ApiError, type OnboardingSubmission } from "../../api";
 import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 
@@ -10,7 +11,7 @@ const INDUSTRIES = ["Textile", "Electronics", "Pharmaceuticals", "Chemicals", "H
 const REQUIRED_BY_STEP: (keyof OnboardingSubmission)[][] = [
   ["companyName", "gstin", "iec", "city", "industry"],
   ["directorName", "directorPan"],
-  ["bankAccountNo", "ifsc", "bankName"],
+  ["bankAccountNo", "ifsc", "bankName", "settlementCurrency"],
   [],
 ];
 
@@ -27,6 +28,7 @@ function emptyForm(): OnboardingSubmission {
     bankAccountNo: "",
     ifsc: "",
     bankName: "",
+    settlementCurrency: "SGD",
   };
 }
 
@@ -78,6 +80,7 @@ export function Onboarding() {
         bankAccountNo: data.exporter.bankAccountNo,
         ifsc: data.exporter.ifsc,
         bankName: data.exporter.bankName,
+        settlementCurrency: data.virtualAccount?.currency ?? "SGD",
       });
       setLoadedFromExporter(true);
     }
@@ -85,8 +88,8 @@ export function Onboarding() {
 
   const mutation = useMutation({
     mutationFn: (payload: OnboardingSubmission) => api.submitOnboarding(payload),
-    onSuccess: (exporter) => {
-      queryClient.setQueryData<ExporterDashboard>(["dashboard"], (prev) => (prev ? { ...prev, exporter } : prev));
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       setSubmitError(null);
       setSubmitted(true);
     },
@@ -95,7 +98,7 @@ export function Onboarding() {
     },
   });
 
-  function update<K extends keyof OnboardingSubmission>(key: K, value: string) {
+  function update<K extends keyof OnboardingSubmission>(key: K, value: OnboardingSubmission[K]) {
     setForm((f) => ({ ...f, [key]: value }));
     setSubmitted(false);
   }
@@ -223,6 +226,24 @@ export function Onboarding() {
                       />
                       <Field label="IFSC" value={form.ifsc} onChange={(v) => update("ifsc", v.toUpperCase())} />
                       <Field label="Bank name" value={form.bankName} onChange={(v) => update("bankName", v)} />
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-gray-700">Settlement currency</label>
+                        <select
+                          value={form.settlementCurrency}
+                          onChange={(e) => update("settlementCurrency", e.target.value as Currency)}
+                          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        >
+                          {CURRENCIES.map((currency) => (
+                            <option key={currency} value={currency}>
+                              {currency}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="mt-1 text-sm text-gray-500">
+                          Submitting links this exporter's virtual account for the chosen currency — creating one if
+                          it doesn't already exist.
+                        </p>
+                      </div>
                       <p className="text-sm text-gray-500">Penny-drop verification runs as a demo stub on save.</p>
                     </div>
                   )}
@@ -251,14 +272,22 @@ export function Onboarding() {
                           {form.bankAccountNo || "—"} ({form.ifsc || "—"})
                         </span>
                       </p>
+                      <p>
+                        <span className="text-gray-400">Settlement currency: </span>
+                        <span className="font-medium text-gray-900">{form.settlementCurrency}</span>
+                      </p>
                       {!canSubmit && (
                         <p className="text-amber-600">Fill in every required field on the earlier steps first.</p>
                       )}
                       {submitError && <p className="text-red-600">{submitError}</p>}
-                      {submitted && <p className="font-medium text-green-600">Saved — your exporter profile has been updated.</p>}
+                      {submitted && (
+                        <p className="font-medium text-green-600">
+                          Saved — your exporter profile and {form.settlementCurrency} virtual account are linked.
+                        </p>
+                      )}
                       <p className="pt-2 font-medium text-primary">
-                        Submitting updates the company, director, and bank details used across your dashboard,
-                        orders, and documents.
+                        Submitting updates your company, director, and bank details, and creates (or re-links) the
+                        virtual account for the chosen settlement currency.
                       </p>
                     </div>
                   )}
@@ -322,6 +351,12 @@ export function Onboarding() {
                       {data.exporter.bankAccountNo} ({data.exporter.ifsc})
                     </span>
                   </p>
+                  <p>
+                    <span className="text-gray-400">Linked virtual account: </span>
+                    <span className="font-medium text-gray-900">
+                      {data.virtualAccount ? `${data.virtualAccount.currency} · ${data.virtualAccount.accountNo}` : "—"}
+                    </span>
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -334,16 +369,20 @@ export function Onboarding() {
             )}
 
             <Card>
-              <h2 className="mb-3 font-semibold text-gray-900">Virtual accounts provisioned via onboarding</h2>
+              <h2 className="mb-3 font-semibold text-gray-900">Virtual accounts</h2>
               <p className="mb-3 text-sm text-gray-500">
-                These were created and linked to this exporter when onboarding first completed — editing the
-                profile above doesn't re-provision them.
+                Submitting onboarding links the account for your chosen settlement currency (creating it if it's
+                new) — the highlighted one below is this exporter's current primary.
               </p>
               <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {data.virtualAccounts.map((a) => (
                   <li
                     key={a.id}
-                    className="rounded-lg border border-gray-100 px-3 py-2 text-center text-sm font-medium text-gray-700"
+                    className={`rounded-lg border px-3 py-2 text-center text-sm font-medium ${
+                      a.id === data.exporter.virtualAccountId
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-gray-100 text-gray-700"
+                    }`}
                   >
                     {a.currency}
                   </li>

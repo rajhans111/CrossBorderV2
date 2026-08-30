@@ -251,6 +251,31 @@ request missing a required field with `400 VALIDATION_ERROR`, and
 `POST /api/admin/reset` still restores the original seeded profile
 afterwards.
 
+## Every onboarding submission creates (or links) a virtual account
+
+Editing the profile above originally left virtual accounts untouched. Asked
+to have onboarding always provision one, the wizard's Bank account step now
+has a **Settlement currency** field, and `updateOnboarding()` does a
+find-or-create for that currency: `Store.getVirtualAccountByCurrency()` first
+— if that currency already has an account (true for all 6 seeded currencies
+in this demo), it's linked as the exporter's new primary; only a genuinely
+new currency gets a freshly created one. This is a find-or-create, not a
+blind create, because escrow settlement (`mockEscrowService.ts`) looks up an
+order's account **by currency**, not by ID — minting a second account in a
+currency that already holds funds would orphan that balance from every order
+already settling into the original one.
+
+Verified live: with the seed's SGD account holding 152,900 in escrow,
+switching the settlement currency to USD and back to SGD never created a
+duplicate (6 virtual accounts throughout) and never touched the SGD escrow
+balance (152,900 before, during, and after). The dashboard's "In Escrow"
+card was hardcoded to the `SGD` label regardless of which currency was
+actually primary — a latent bug this feature made reachable in normal use —
+so it's now currency-aware (`formatMoney(inEscrowSgd, virtualAccount.currency)`
+with a matching dynamic label), same for the "other currency balances" card,
+which was filtering out `SGD` unconditionally instead of whichever currency
+is actually primary.
+
 ## Known limitations (MVP scope)
 
 - No visual/browser testing was performed on the UI in this session (built,

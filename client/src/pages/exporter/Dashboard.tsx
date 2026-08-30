@@ -4,7 +4,7 @@ import { api } from "../../api";
 import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
-import { formatInr, formatMoney, formatSgd } from "../../lib/format";
+import { formatInr, formatMoney } from "../../lib/format";
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
@@ -17,6 +17,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 
 export function Dashboard() {
   const { data, isLoading, error, refetch } = useQuery({ queryKey: ["dashboard"], queryFn: api.getDashboard });
+  const primaryCurrency = data?.virtualAccount?.currency ?? "SGD";
 
   return (
     <div className="space-y-6">
@@ -29,18 +30,18 @@ export function Dashboard() {
         {data && (
           <>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard label="In Escrow" value={formatSgd(data.inEscrowSgd)} />
+              <StatCard label={`In Escrow (${primaryCurrency})`} value={formatMoney(data.inEscrowSgd, primaryCurrency)} />
               <StatCard label="Received this month" value={formatInr(data.receivedThisMonthInr)} />
               <StatCard label="Active orders" value={String(data.activeOrders)} />
               <StatCard label="FX saved this month" value={formatInr(data.fxSavedThisMonthInr)} />
             </div>
 
-            {data.virtualAccounts.some((a) => a.currency !== "SGD" && a.escrowBalance > 0) && (
+            {data.virtualAccounts.some((a) => a.currency !== primaryCurrency && a.escrowBalance > 0) && (
               <Card>
                 <p className="mb-2 text-sm font-medium text-gray-900">Other currency balances</p>
                 <div className="flex flex-wrap gap-4 text-sm text-gray-700">
                   {data.virtualAccounts
-                    .filter((a) => a.currency !== "SGD" && a.escrowBalance > 0)
+                    .filter((a) => a.currency !== primaryCurrency && a.escrowBalance > 0)
                     .map((a) => (
                       <span key={a.currency}>{formatMoney(a.escrowBalance, a.currency)}</span>
                     ))}
