@@ -196,6 +196,14 @@ platform-wide with its order reference. Verified live: pushed a fresh order
 through the full lifecycle and confirmed EDPMS/FIRC/eBRC all appear correctly
 in both places.
 
+Filing order and status: `fileArtefacts()` files **FIRC → eBRC → EDPMS**
+(matching the order the exporter reads them off in real life), all marked
+**Issued** — it only ever runs after `SETTLE_FX`, i.e. once FX has settled
+*and* delivery is confirmed, never earlier. The one exception is the seed's
+historical `XO-DONE07`, which keeps its literal spec-given fact — EDPMS
+`Pending Ad Bank Ack` — since that's a static snapshot of a pre-existing
+order, not something the live filing flow produced.
+
 ## Known limitations (MVP scope)
 
 - No visual/browser testing was performed on the UI in this session (built,
