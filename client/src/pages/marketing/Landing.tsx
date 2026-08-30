@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CURRENCIES } from "@setu/types";
+import { XintoMark } from "../../components/XintoMark";
 
 const NAV_LINKS = [
   { href: "#how-it-works", label: "How It Works" },
@@ -157,7 +158,8 @@ export function Landing() {
       {/* Nav */}
       <header className="sticky top-0 z-10 border-b border-gray-200 bg-[#faf9f6]/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link to="/" className="text-xl font-semibold text-primary hover:opacity-80">
+          <Link to="/" className="flex items-center gap-2 text-xl font-semibold text-primary hover:opacity-80">
+            <XintoMark />
             Xinto
           </Link>
           <nav className="hidden gap-6 text-sm text-gray-600 md:flex">
@@ -520,7 +522,8 @@ export function Landing() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <Link to="/" className="text-lg font-semibold text-primary hover:opacity-80">
+              <Link to="/" className="flex items-center gap-2 text-lg font-semibold text-primary hover:opacity-80">
+                <XintoMark />
                 Xinto
               </Link>
               <p className="mt-2 text-sm text-gray-500">

@@ -4,6 +4,7 @@ import { api } from "../../api";
 import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
+import { XintoMark } from "../../components/XintoMark";
 import { formatMoney } from "../../lib/format";
 
 export function BuyerWorkspace() {
@@ -18,7 +19,8 @@ export function BuyerWorkspace() {
     <div className="min-h-screen bg-gray-50 px-4 py-8">
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="text-center">
-          <Link to="/" className="text-lg font-semibold text-primary hover:opacity-80">
+          <Link to="/" className="inline-flex items-center gap-2 text-lg font-semibold text-primary hover:opacity-80">
+            <XintoMark />
             Xinto
           </Link>
           <p className="text-sm text-gray-500">Buyer workspace</p>

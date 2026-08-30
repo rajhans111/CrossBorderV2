@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { XintoMark } from "./XintoMark";
 
 export function TopBar() {
   const navigate = useNavigate();
@@ -15,7 +16,8 @@ export function TopBar() {
   return (
     <header className="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-6 py-3">
       <div className="flex items-center gap-6">
-        <Link to="/" className="text-lg font-semibold text-primary hover:opacity-80">
+        <Link to="/" className="flex items-center gap-2 text-lg font-semibold text-primary hover:opacity-80">
+          <XintoMark />
           Xinto
         </Link>
         <nav className="flex gap-1 rounded-lg bg-gray-100 p-1 text-sm">
