@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import type {
   AuditEvent,
   Buyer,
@@ -13,6 +13,17 @@ import type {
   UnmatchedVaCredit,
   VirtualAccount,
 } from "@setu/types";
+
+/**
+ * A deterministic token derived from a stable seed string (e.g. an order
+ * reference). Used instead of randomUUID() for magic-link tokens so a
+ * bookmarked/shared link to a *seeded* demo order keeps working across
+ * server restarts and redeploys — the in-memory store reseeds from scratch
+ * every boot, so a randomly generated token would break on every deploy.
+ */
+function deterministicToken(seed: string): string {
+  return createHash("sha256").update(seed).digest("hex").slice(0, 32);
+}
 
 export class Store {
   private exporters = new Map<string, Exporter>();
@@ -76,7 +87,11 @@ export class Store {
   // --- Buyer ---
 
   createBuyer(input: Omit<Buyer, "id" | "portalToken">): Buyer {
-    const buyer: Buyer = { ...input, id: randomUUID(), portalToken: randomUUID() };
+    const buyer: Buyer = {
+      ...input,
+      id: randomUUID(),
+      portalToken: deterministicToken(`buyer:${input.name}`),
+    };
     this.buyers.set(buyer.id, buyer);
     this.buyerIdByPortalToken.set(buyer.portalToken, buyer.id);
     return buyer;
@@ -104,7 +119,7 @@ export class Store {
       id: randomUUID(),
       createdAt: now,
       updatedAt: now,
-      buyerToken: randomUUID(),
+      buyerToken: deterministicToken(`order:${input.reference}`),
     };
     this.tradeOrders.set(order.id, order);
     this.orderIdByReference.set(order.reference, order.id);

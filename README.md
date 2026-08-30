@@ -168,6 +168,19 @@ adopting, and is now in place:
   the passcode is `admin-demo`. It matches the same "no real auth backend"
   choice already made for Login/Register, just applied to `/admin` too.
 
+## Magic links survive redeploys
+
+Every buyer/order magic-link token (`buyerToken`, `portalToken`) is derived
+deterministically from a stable value (the order reference, the buyer name)
+via SHA-256, instead of `crypto.randomUUID()`. The in-memory store reseeds
+from scratch on every server boot — a random token would silently go stale
+on every redeploy or restart, breaking any link you'd bookmarked or shared
+(e.g. in a slide deck). A deterministic token stays valid for a *seeded* demo
+order forever, since re-seeding always regenerates the same token for the
+same reference. This is not meant as real security — it's a stable-but-
+guessable-if-you-know-the-scheme identifier, appropriate for a demo link, not
+a production secret.
+
 ## Known limitations (MVP scope)
 
 - No visual/browser testing was performed on the UI in this session (built,
