@@ -1,6 +1,80 @@
-interface HealthResponse {
-  status: string;
-  service: string;
+import type {
+  AuditEvent,
+  Buyer,
+  ComplianceArtefact,
+  Dispute,
+  DisputeReason,
+  EscrowPosition,
+  Exporter,
+  FxQuote,
+  Incoterm,
+  Invoice,
+  PaymentTerms,
+  ScreeningCase,
+  TradeOrder,
+  TradeOrderStatus,
+  UnmatchedVaCredit,
+  VirtualAccount,
+} from "@setu/types";
+
+export interface OrderSummary extends TradeOrder {
+  buyerName: string;
+}
+
+export interface OrderDetail extends TradeOrder {
+  buyer?: Buyer;
+  escrowPosition?: EscrowPosition;
+  dispute?: Dispute;
+  fxQuote?: FxQuote;
+  invoice?: Invoice;
+}
+
+export interface ExporterDashboard {
+  exporter: Exporter;
+  virtualAccount?: VirtualAccount;
+  inEscrowSgd: number;
+  receivedThisMonthInr: number;
+  fxSavedThisMonthInr: number;
+  activeOrders: number;
+  orders: TradeOrder[];
+}
+
+export interface HeldPosition {
+  reference: string;
+  amountSgd: number;
+  status: EscrowPosition["status"];
+}
+
+export interface VirtualAccountView extends VirtualAccount {
+  heldPositions: HeldPosition[];
+}
+
+export interface BuyerPortalView {
+  order: TradeOrder;
+  buyer?: Buyer;
+  virtualAccount?: VirtualAccount;
+  escrowPosition?: EscrowPosition;
+  dispute?: Dispute;
+}
+
+export interface AdminOverview {
+  exporter?: Exporter;
+  orders: TradeOrder[];
+  disputes: Dispute[];
+  screeningCases: ScreeningCase[];
+  unmatchedCredits: UnmatchedVaCredit[];
+  complianceArtefacts: ComplianceArtefact[];
+  auditTrail: AuditEvent[];
+}
+
+export interface CreateOrderPayload {
+  buyerId: string;
+  product: string;
+  quantity: number;
+  amountSgd: number;
+  incoterm: Incoterm;
+  hsCode: string;
+  paymentTerms: PaymentTerms;
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -9,11 +83,54 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
-    throw new Error(`Request to ${path} failed with ${res.status}`);
+    const body = (await res.json().catch(() => undefined)) as { error?: string } | undefined;
+    throw new Error(body?.error ?? `Request to ${path} failed with ${res.status}`);
+  }
+  if (res.status === 204) {
+    return undefined as T;
   }
   return res.json() as Promise<T>;
 }
 
 export const api = {
-  getHealth: () => request<HealthResponse>("/health"),
+  getHealth: () => request<{ status: string; service: string }>("/health"),
+
+  // Orders
+  listOrders: (params?: { status?: TradeOrderStatus; search?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.status) query.set("status", params.status);
+    if (params?.search) query.set("search", params.search);
+    const qs = query.toString();
+    return request<OrderSummary[]>(`/orders${qs ? `?${qs}` : ""}`);
+  },
+  getOrder: (reference: string) => request<OrderDetail>(`/orders/${reference}`),
+  createOrder: (payload: CreateOrderPayload) =>
+    request<TradeOrder>("/orders", { method: "POST", body: JSON.stringify(payload) }),
+  transitionOrder: (reference: string, type: "MARK_PAYMENT_AWAITED" | "MARK_SHIPPED" | "RESOLVE_DISPUTE" | "REFUND") =>
+    request<TradeOrder>(`/orders/${reference}/transition`, {
+      method: "POST",
+      body: JSON.stringify({ type }),
+    }),
+  generateInvoice: (reference: string) =>
+    request<Invoice>(`/orders/${reference}/invoice`, { method: "POST" }),
+  generateShippingDoc: (reference: string, type: string) =>
+    request<TradeOrder>(`/orders/${reference}/shipping-docs/${type}/generate`, { method: "POST" }),
+
+  // Exporter
+  getDashboard: () => request<ExporterDashboard>("/exporter/dashboard"),
+  getVirtualAccount: () => request<VirtualAccountView>("/exporter/virtual-account"),
+  getBuyers: () => request<Buyer[]>("/exporter/buyers"),
+
+  // Buyer (magic link)
+  getBuyerPortal: (token: string) => request<BuyerPortalView>(`/buyer/${token}`),
+  buyerPay: (token: string) => request<TradeOrder>(`/buyer/${token}/pay`, { method: "POST" }),
+  buyerConfirm: (token: string) => request<TradeOrder>(`/buyer/${token}/confirm`, { method: "POST" }),
+  buyerDispute: (token: string, reason: DisputeReason) =>
+    request<TradeOrder>(`/buyer/${token}/dispute`, { method: "POST", body: JSON.stringify({ reason }) }),
+
+  // Admin
+  getAdminOverview: () => request<AdminOverview>("/admin/overview"),
+  approveKyc: (exporterId: string) =>
+    request<Exporter>(`/admin/kyc/${exporterId}/approve`, { method: "POST" }),
+  resetDemoData: () => request<{ status: string }>("/admin/reset", { method: "POST" }),
 };

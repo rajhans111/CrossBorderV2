@@ -7,6 +7,10 @@ export function getDashboard(_req: Request, res: Response): void {
   res.json(getExporterDashboard(store));
 }
 
+export function getBuyers(_req: Request, res: Response): void {
+  res.json(store.getBuyers());
+}
+
 export function getVirtualAccount(_req: Request, res: Response): void {
   const exporter = store.getExporter();
   if (!exporter) {
