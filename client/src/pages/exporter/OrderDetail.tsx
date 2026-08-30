@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import type { ShippingDocType } from "@setu/types";
 import { api } from "../../api";
 import { Card } from "../../components/Card";
+import { JourneyMap } from "../../components/JourneyMap";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
 import { formatDate, formatInr, formatSgd } from "../../lib/format";
@@ -57,19 +58,130 @@ export function OrderDetail() {
       <QueryState isLoading={isLoading} error={error}>
         {order && (
           <>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">{order.reference}</h1>
-                <p className="text-sm text-gray-500">{order.product}</p>
-              </div>
-              <StatusPill status={order.status} />
-            </div>
-
             {transitionMutation.isError && (
               <p className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                 {(transitionMutation.error as Error).message}
               </p>
             )}
+
+            <Card>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Order detail</p>
+              <div className="mt-4 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_260px]">
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-mono text-sm text-primary">{order.reference}</p>
+                      <h1 className="text-lg font-semibold text-gray-900">{order.buyer?.name}</h1>
+                      <p className="text-sm text-gray-500">
+                        {formatSgd(order.amountSgd)} · {order.product}
+                      </p>
+                    </div>
+                    <StatusPill status={order.status} />
+                  </div>
+                  <div className="mt-6">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                      Payment timeline
+                    </p>
+                    <JourneyMap
+                      status={order.status}
+                      branchedFromStatus={
+                        order.status === "Disputed" || order.status === "Refunded"
+                          ? order.dispute?.previousStatus
+                          : undefined
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4 border-gray-100 lg:border-l lg:pl-8">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Related actions</p>
+
+                  {order.invoice ? (
+                    <div className="text-sm text-gray-700">
+                      <p className="font-medium text-gray-900">{order.invoice.invoiceNo}</p>
+                      <p className="text-xs text-gray-500">Total due: {formatSgd(order.invoice.totalDue)}</p>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => invoiceMutation.mutate()}
+                      disabled={invoiceMutation.isPending}
+                      className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                    >
+                      Generate invoice
+                    </button>
+                  )}
+
+                  {order.status === "Created" && (
+                    <button
+                      type="button"
+                      onClick={() => transitionMutation.mutate("MARK_PAYMENT_AWAITED")}
+                      disabled={transitionMutation.isPending}
+                      className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                    >
+                      Mark payment awaited
+                    </button>
+                  )}
+                  {order.status === "InEscrow" && (
+                    <button
+                      type="button"
+                      onClick={() => transitionMutation.mutate("MARK_SHIPPED")}
+                      disabled={
+                        transitionMutation.isPending || !order.shippingDocs.every((d) => d.status === "confirmed")
+                      }
+                      className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                    >
+                      Mark shipped
+                    </button>
+                  )}
+                  {order.status === "Disputed" && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => transitionMutation.mutate("RESOLVE_DISPUTE")}
+                        disabled={transitionMutation.isPending}
+                        className="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+                      >
+                        Resolve dispute
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => transitionMutation.mutate("REFUND")}
+                        disabled={transitionMutation.isPending}
+                        className="w-full rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 disabled:opacity-50"
+                      >
+                        Refund buyer
+                      </button>
+                    </>
+                  )}
+
+                  <div className="border-t border-gray-100 pt-4 text-sm">
+                    <p className="mb-1 text-gray-500">
+                      Buyer order:{" "}
+                      <a
+                        href={buyerLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="break-all text-primary hover:underline"
+                      >
+                        {buyerLink}
+                      </a>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(buyerLink);
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 1500);
+                      }}
+                      className="mt-1 rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                    >
+                      {copied ? "Copied!" : "Copy link"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Card>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="space-y-6 lg:col-span-2">
@@ -141,14 +253,7 @@ export function OrderDetail() {
                       <p className="mt-1 text-gray-500">{order.invoice.paymentInstructions}</p>
                     </div>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => invoiceMutation.mutate()}
-                      disabled={invoiceMutation.isPending}
-                      className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                    >
-                      Generate invoice
-                    </button>
+                    <p className="text-sm text-gray-400">Not yet generated — see Related actions above.</p>
                   )}
                 </Card>
 
@@ -164,74 +269,6 @@ export function OrderDetail() {
               </div>
 
               <div className="space-y-6">
-                <Card>
-                  <h2 className="mb-3 font-semibold text-gray-900">Actions</h2>
-                  <div className="flex flex-col gap-2">
-                    {order.status === "Created" && (
-                      <button
-                        type="button"
-                        onClick={() => transitionMutation.mutate("MARK_PAYMENT_AWAITED")}
-                        disabled={transitionMutation.isPending}
-                        className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                      >
-                        Mark payment awaited
-                      </button>
-                    )}
-                    {order.status === "InEscrow" && (
-                      <button
-                        type="button"
-                        onClick={() => transitionMutation.mutate("MARK_SHIPPED")}
-                        disabled={
-                          transitionMutation.isPending ||
-                          !order.shippingDocs.every((d) => d.status === "confirmed")
-                        }
-                        className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                      >
-                        Mark shipped
-                      </button>
-                    )}
-                    {order.status === "Disputed" && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => transitionMutation.mutate("RESOLVE_DISPUTE")}
-                          disabled={transitionMutation.isPending}
-                          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-                        >
-                          Resolve dispute (back into flow)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => transitionMutation.mutate("REFUND")}
-                          disabled={transitionMutation.isPending}
-                          className="rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-700 disabled:opacity-50"
-                        >
-                          Refund buyer
-                        </button>
-                      </>
-                    )}
-                    {["PaymentAwaited", "Shipped", "DeliveryConfirmed", "FxSettled", "Completed", "Refunded"].includes(
-                      order.status,
-                    ) && <p className="text-sm text-gray-400">No exporter action pending.</p>}
-                  </div>
-                </Card>
-
-                <Card>
-                  <h2 className="mb-3 font-semibold text-gray-900">Buyer magic link</h2>
-                  <p className="mb-2 break-all rounded-lg bg-gray-50 p-2 text-xs text-gray-600">{buyerLink}</p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard?.writeText(buyerLink);
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 1500);
-                    }}
-                    className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    {copied ? "Copied!" : "Copy link"}
-                  </button>
-                </Card>
-
                 {order.escrowPosition && (
                   <Card>
                     <h2 className="mb-2 font-semibold text-gray-900">Escrow</h2>
