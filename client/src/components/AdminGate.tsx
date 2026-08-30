@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from "react";
 
-const DEMO_ADMIN_PASSCODE = "admin-demo";
+const DEMO_ADMIN_PASSCODE = "11111";
 const SESSION_KEY = "xinto-admin-unlocked";
 
 /**
@@ -18,7 +18,7 @@ export function AdminGate({ children }: { children: ReactNode }) {
       return false;
     }
   });
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(DEMO_ADMIN_PASSCODE);
   const [wrongAttempt, setWrongAttempt] = useState(false);
 
   if (unlocked) {
@@ -44,11 +44,11 @@ export function AdminGate({ children }: { children: ReactNode }) {
       <div className="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <h1 className="mb-1 text-lg font-semibold text-gray-900">Admin access</h1>
         <p className="mb-4 text-sm text-gray-500">
-          Demo passcode gate — see the README for the passcode. Not real access control.
+          Demo passcode gate — prefilled for convenience. Not real access control.
         </p>
         <form onSubmit={onSubmit} className="space-y-3">
           <input
-            type="password"
+            type="text"
             value={input}
             onChange={(e) => {
               setInput(e.target.value);

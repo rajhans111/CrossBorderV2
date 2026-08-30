@@ -165,7 +165,8 @@ adopting, and is now in place:
   the review asked for, without a schema rewrite.
 - **Admin passcode gate**: `/admin` is no longer silently open to anyone with
   the URL. This is a **cosmetic** client-side gate, not real access control —
-  the passcode is `admin-demo`. It matches the same "no real auth backend"
+  the passcode is `11111`, and the field comes prefilled with it for a
+  quicker demo click-through. It matches the same "no real auth backend"
   choice already made for Login/Register, just applied to `/admin` too.
 
 ## Magic links survive redeploys
