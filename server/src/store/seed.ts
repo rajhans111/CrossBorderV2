@@ -224,6 +224,9 @@ export function loadSeed(store: Store): void {
     actor: "system",
     entity: `Exporter:${exporter.companyName}`,
     privileged: true,
+    beforeState: { kycStatus: "Pending" },
+    afterState: { kycStatus: "Approved" },
+    evidence: "seeded as pre-approved for demo purposes",
   });
 
   const buyerNames = [
@@ -334,6 +337,9 @@ export function loadSeed(store: Store): void {
     actor: "system",
     entity: "ScreeningCase:Shah Pharma Exports",
     privileged: true,
+    beforeState: { status: "none" },
+    afterState: { status: "Needs_review" },
+    evidence: "name-similarity match against a sanctions watchlist entry",
   });
 
   store.addUnmatchedCredit({

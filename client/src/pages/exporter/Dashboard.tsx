@@ -16,7 +16,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
 }
 
 export function Dashboard() {
-  const { data, isLoading, error } = useQuery({ queryKey: ["dashboard"], queryFn: api.getDashboard });
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: ["dashboard"], queryFn: api.getDashboard });
 
   return (
     <div className="space-y-6">
@@ -25,7 +25,7 @@ export function Dashboard() {
         <p className="text-sm text-gray-500">{data?.exporter.companyName}</p>
       </div>
 
-      <QueryState isLoading={isLoading} error={error}>
+      <QueryState isLoading={isLoading} error={error} onRetry={refetch}>
         {data && (
           <>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

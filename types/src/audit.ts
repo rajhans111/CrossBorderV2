@@ -7,4 +7,10 @@ export interface AuditEvent {
   actor: AuditActor;
   entity: string;
   privileged: boolean;
+  /** State immediately before this event, when applicable (e.g. prior status). */
+  beforeState?: Record<string, unknown>;
+  /** State immediately after this event. */
+  afterState?: Record<string, unknown>;
+  /** What justified the action — a document reference, a dispute reason, etc. */
+  evidence?: string;
 }

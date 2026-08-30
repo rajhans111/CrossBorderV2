@@ -10,7 +10,7 @@ import { formatMoney } from "../../lib/format";
 export function BuyerWorkspace() {
   const { token = "" } = useParams();
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["buyer-workspace", token],
     queryFn: () => api.getBuyerWorkspace(token),
   });
@@ -26,7 +26,7 @@ export function BuyerWorkspace() {
           <p className="text-sm text-gray-500">Buyer workspace</p>
         </div>
 
-        <QueryState isLoading={isLoading} error={error}>
+        <QueryState isLoading={isLoading} error={error} onRetry={refetch}>
           {data && (
             <>
               <Card>

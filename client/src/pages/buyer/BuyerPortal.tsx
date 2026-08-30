@@ -22,7 +22,7 @@ export function BuyerPortal() {
   const [showDisputeForm, setShowDisputeForm] = useState(false);
   const [reason, setReason] = useState<DisputeReason>("goods_not_received");
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["buyer-portal", token],
     queryFn: () => api.getBuyerPortal(token),
   });
@@ -54,7 +54,7 @@ export function BuyerPortal() {
           <p className="text-sm text-gray-500">Buyer portal</p>
         </div>
 
-        <QueryState isLoading={isLoading} error={error}>
+        <QueryState isLoading={isLoading} error={error} onRetry={refetch}>
           {data && (
             <>
               <Card>

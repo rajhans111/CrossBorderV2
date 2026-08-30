@@ -138,6 +138,36 @@ Beyond the original milestones, this now also has:
   original seed orders stay SGD, preserving the spec's exact literal figures
   (152,900 escrow, 7 active orders) — new orders can pick any of the six.
 
+## Response to the "readiness review" (Aug 2026)
+
+A third-party readiness review claimed Onboarding, Virtual Accounts, and Admin
+were stuck permanently on "Loading…" due to wrong API calls. I verified this
+directly against the live deployment before touching anything: all three
+endpoints returned 200 with correct data, and the deployed bundle matched the
+latest commit — the claim didn't reproduce. The review's broader proposal
+(real JWT/RBAC auth, a MySQL three-database split, a versioned `/api/v1/*`
+rewrite, splitting frontend/backend into two services) would reverse the
+in-memory, mock-services-only, cosmetic-auth, single-service design this MVP
+is explicitly built around, so it wasn't adopted wholesale. What *was* worth
+adopting, and is now in place:
+
+- **Structured API errors**: every error response is
+  `{ error, code, meta: { requestId, timestamp } }` — `code` is one of
+  `NOT_FOUND` / `VALIDATION_ERROR` / `ILLEGAL_TRANSITION` / `INTERNAL_ERROR`.
+- **Visible retry on failure**: `QueryState` now renders a "Retry" button
+  (wired to the query's `refetch`) instead of leaving a page stuck if a
+  request fails — addresses the review's real underlying concern (undefined
+  loading/error states) without restructuring every success response.
+- **Richer audit trail**: `AuditEvent` gained optional `beforeState`,
+  `afterState`, and `evidence` fields. State transitions, escrow lifecycle
+  events, and KYC approval now record what changed and why (e.g. a dispute's
+  audit entry captures the reason and who opened it) — the "evidence chain"
+  the review asked for, without a schema rewrite.
+- **Admin passcode gate**: `/admin` is no longer silently open to anyone with
+  the URL. This is a **cosmetic** client-side gate, not real access control —
+  the passcode is `admin-demo`. It matches the same "no real auth backend"
+  choice already made for Login/Register, just applied to `/admin` too.
+
 ## Known limitations (MVP scope)
 
 - No visual/browser testing was performed on the UI in this session (built,

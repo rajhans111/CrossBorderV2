@@ -85,14 +85,24 @@ export interface CreateOrderPayload {
   paymentTerms: PaymentTerms;
 }
 
+export class ApiError extends Error {
+  code?: string;
+
+  constructor(message: string, code?: string) {
+    super(message);
+    this.name = "ApiError";
+    this.code = code;
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, {
     headers: { "Content-Type": "application/json" },
     ...init,
   });
   if (!res.ok) {
-    const body = (await res.json().catch(() => undefined)) as { error?: string } | undefined;
-    throw new Error(body?.error ?? `Request to ${path} failed with ${res.status}`);
+    const body = (await res.json().catch(() => undefined)) as { error?: string; code?: string } | undefined;
+    throw new ApiError(body?.error ?? `Request to ${path} failed with ${res.status}`, body?.code);
   }
   if (res.status === 204) {
     return undefined as T;

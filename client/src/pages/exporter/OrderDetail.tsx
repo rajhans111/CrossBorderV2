@@ -21,7 +21,7 @@ export function OrderDetail() {
   const queryClient = useQueryClient();
   const [copied, setCopied] = useState(false);
 
-  const { data: order, isLoading, error } = useQuery({
+  const { data: order, isLoading, error, refetch } = useQuery({
     queryKey: ["order", ref],
     queryFn: () => api.getOrder(ref),
   });
@@ -58,7 +58,7 @@ export function OrderDetail() {
         </Link>
       </div>
 
-      <QueryState isLoading={isLoading} error={error}>
+      <QueryState isLoading={isLoading} error={error} onRetry={refetch}>
         {order && (
           <>
             {transitionMutation.isError && (

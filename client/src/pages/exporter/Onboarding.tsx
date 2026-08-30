@@ -4,7 +4,7 @@ import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 
 export function Onboarding() {
-  const { data, isLoading, error } = useQuery({ queryKey: ["dashboard"], queryFn: api.getDashboard });
+  const { data, isLoading, error, refetch } = useQuery({ queryKey: ["dashboard"], queryFn: api.getDashboard });
 
   const steps = data
     ? [
@@ -27,7 +27,7 @@ export function Onboarding() {
   return (
     <div className="max-w-2xl space-y-4">
       <h1 className="text-xl font-semibold text-gray-900">Onboarding</h1>
-      <QueryState isLoading={isLoading} error={error}>
+      <QueryState isLoading={isLoading} error={error} onRetry={refetch}>
         <Card>
           <ol className="space-y-4">
             {steps.map((step, i) => (

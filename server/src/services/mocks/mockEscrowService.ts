@@ -39,6 +39,9 @@ export const mockEscrowService: EscrowServiceInterface = {
       actor: "system",
       entity: `TradeOrder:${order.reference}`,
       privileged: false,
+      beforeState: { status: "none" },
+      afterState: { status: "Held", amount: position.amount, currency: position.currency },
+      evidence: "payment received via mock bank webhook",
     });
     return position;
   },
@@ -53,6 +56,9 @@ export const mockEscrowService: EscrowServiceInterface = {
       actor: "system",
       entity: `TradeOrder:${order.reference}`,
       privileged: false,
+      beforeState: { status: existing.status },
+      afterState: { status: "Released" },
+      evidence: "buyer confirmed delivery",
     });
     return updated;
   },
@@ -67,6 +73,9 @@ export const mockEscrowService: EscrowServiceInterface = {
       actor: "system",
       entity: `TradeOrder:${order.reference}`,
       privileged: false,
+      beforeState: { status: existing.status },
+      afterState: { status: "Refunded" },
+      evidence: "ops resolved an open dispute by refunding the buyer",
     });
     return updated;
   },
@@ -80,6 +89,8 @@ export const mockEscrowService: EscrowServiceInterface = {
       actor: "system",
       entity: `TradeOrder:${order.reference}`,
       privileged: false,
+      beforeState: { status: existing.status },
+      afterState: { status: "Disputed" },
     });
     return updated;
   },
@@ -93,6 +104,9 @@ export const mockEscrowService: EscrowServiceInterface = {
       actor: "system",
       entity: `TradeOrder:${order.reference}`,
       privileged: false,
+      beforeState: { status: existing.status },
+      afterState: { status: "Held" },
+      evidence: "ops resolved the dispute back into the main flow",
     });
     return updated;
   },

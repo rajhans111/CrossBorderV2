@@ -12,7 +12,7 @@ export function AdminOverview() {
   const queryClient = useQueryClient();
   const [showAllEvents, setShowAllEvents] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["admin-overview"],
     queryFn: api.getAdminOverview,
   });
@@ -42,7 +42,7 @@ export function AdminOverview() {
     <div className="space-y-6">
       <h1 className="text-xl font-semibold text-gray-900">Admin overview</h1>
 
-      <QueryState isLoading={isLoading} error={error}>
+      <QueryState isLoading={isLoading} error={error} onRetry={refetch}>
         {data && (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>

@@ -7,7 +7,7 @@ import { StatusPill } from "../../components/StatusPill";
 import { formatMoney } from "../../lib/format";
 
 export function VirtualAccountPage() {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["virtual-accounts"],
     queryFn: api.getVirtualAccounts,
   });
@@ -19,7 +19,7 @@ export function VirtualAccountPage() {
         <p className="text-sm text-gray-500">One virtual account per currency you trade in.</p>
       </div>
 
-      <QueryState isLoading={isLoading} error={error}>
+      <QueryState isLoading={isLoading} error={error} onRetry={refetch}>
         <div className="space-y-6">
           {data?.accounts.map((account) => (
             <Card key={account.id}>

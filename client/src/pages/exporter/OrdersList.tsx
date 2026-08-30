@@ -24,7 +24,7 @@ export function OrdersList() {
   const status = (searchParams.get("status") ?? "") as TradeOrderStatus | "";
   const search = searchParams.get("search") ?? "";
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["orders", status, search],
     queryFn: () => api.listOrders({ status: status || undefined, search: search || undefined }),
   });
@@ -71,7 +71,7 @@ export function OrdersList() {
       </div>
 
       <Card className="p-0">
-        <QueryState isLoading={isLoading} error={error}>
+        <QueryState isLoading={isLoading} error={error} onRetry={refetch}>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="border-b border-gray-100 text-xs uppercase text-gray-400">

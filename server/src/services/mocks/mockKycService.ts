@@ -15,6 +15,9 @@ export const mockKycService: KycServiceInterface = {
       actor: "ops",
       entity: `Exporter:${updated.companyName}`,
       privileged: true,
+      beforeState: { kycStatus: exporter.kycStatus },
+      afterState: { kycStatus: "Approved" },
+      evidence: "ops reviewed and approved KYC documents",
     });
     return updated;
   },

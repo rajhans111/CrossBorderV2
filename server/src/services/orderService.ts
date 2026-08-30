@@ -28,6 +28,7 @@ export function transitionOrder(
   });
 
   let disputeId = order.disputeId;
+  let evidence: string | undefined;
 
   if (event.type === "RAISE_DISPUTE") {
     const dispute = store.createDispute({
@@ -38,13 +39,17 @@ export function transitionOrder(
       previousStatus: order.status,
     });
     disputeId = dispute.id;
+    evidence = `dispute reason: ${event.reason}, opened by ${event.openedBy}`;
   } else if (event.type === "RESOLVE_DISPUTE" || event.type === "REFUND") {
     if (activeDispute) {
       store.updateDispute({ ...activeDispute, status: "Resolved" });
+      evidence = `resolves dispute ${activeDispute.id} (${activeDispute.reason})`;
     }
     if (event.type === "RESOLVE_DISPUTE") {
       disputeId = undefined;
     }
+  } else if (event.type === "MARK_SHIPPED") {
+    evidence = `all shipping documents confirmed: ${order.shippingDocs.map((d) => d.type).join(", ")}`;
   }
 
   const updatedOrder: TradeOrder = {
@@ -60,6 +65,9 @@ export function transitionOrder(
     actor,
     entity: `TradeOrder:${updatedOrder.reference}`,
     privileged: false,
+    beforeState: { status: order.status },
+    afterState: { status: updatedOrder.status },
+    evidence,
   });
 
   return updatedOrder;

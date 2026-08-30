@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { randomUUID } from "node:crypto";
 import express from "express";
 import cors from "cors";
 import { healthRouter } from "./routes/health.js";
@@ -29,7 +30,9 @@ export function createApp() {
   app.use("/api/admin", adminRouter);
 
   app.use("/api", (_req, res) => {
-    res.status(404).json({ error: "Not found" });
+    res
+      .status(404)
+      .json({ error: "Not found", code: "NOT_FOUND", meta: { requestId: randomUUID(), timestamp: new Date().toISOString() } });
   });
 
   // Single-service Render deploy: serve the built client and fall back to
