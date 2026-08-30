@@ -14,7 +14,7 @@ const HOW_IT_WORKS = [
   {
     step: "01",
     title: "Virtual account provisioned",
-    body: "Setu opens a dedicated virtual account in your buyer's currency, backed by a regulated partner bank. No entity setup needed on your end.",
+    body: "Xinto opens a dedicated virtual account in your buyer's currency, backed by a regulated partner bank. No entity setup needed on your end.",
   },
   {
     step: "02",
@@ -24,7 +24,7 @@ const HOW_IT_WORKS = [
   {
     step: "03",
     title: "Funds lock into escrow instantly",
-    body: "The moment payment arrives, escrow locks it. You see it in your Setu dashboard in real time. Neither side can unilaterally move it.",
+    body: "The moment payment arrives, escrow locks it. You see it in your Xinto dashboard in real time. Neither side can unilaterally move it.",
   },
   {
     step: "04",
@@ -34,7 +34,7 @@ const HOW_IT_WORKS = [
   {
     step: "05",
     title: "Currency converts at a transparent rate",
-    body: "Setu applies a flat 0.5% spread, published upfront. You see the exact INR you'll receive before conversion happens.",
+    body: "Xinto applies a flat 0.5% spread, published upfront. You see the exact INR you'll receive before conversion happens.",
   },
   {
     step: "06",
@@ -117,11 +117,11 @@ const PRICING_TIERS = [
 const FAQS = [
   {
     q: "Do I need to set up a company abroad?",
-    a: "No. You don't need a foreign entity of any kind. Setu provisions a virtual account number under our bank partner's account. Your buyers transfer to it like a local account. All you need is your existing Indian company.",
+    a: "No. You don't need a foreign entity of any kind. Xinto provisions a virtual account number under our bank partner's account. Your buyers transfer to it like a local account. All you need is your existing Indian company.",
   },
   {
     q: "Is this RBI-approved? Is it legal?",
-    a: "Setu operates on the FEMA-compliant purpose code for export proceeds, with every transaction reported correctly — this MVP demo reproduces that compliance workflow end to end.",
+    a: "Xinto operates on the FEMA-compliant purpose code for export proceeds, with every transaction reported correctly — this MVP demo reproduces that compliance workflow end to end.",
   },
   {
     q: "What if my buyer refuses to confirm delivery?",
@@ -157,7 +157,9 @@ export function Landing() {
       {/* Nav */}
       <header className="sticky top-0 z-10 border-b border-gray-200 bg-[#faf9f6]/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-xl font-semibold text-primary">Setu</span>
+          <Link to="/" className="text-xl font-semibold text-primary hover:opacity-80">
+            Xinto
+          </Link>
           <nav className="hidden gap-6 text-sm text-gray-600 md:flex">
             {NAV_LINKS.map((link) => (
               <a key={link.href} href={link.href} className="hover:text-gray-900">
@@ -197,7 +199,7 @@ export function Landing() {
             <em className="text-primary">Where&rsquo;s your money?</em>
           </h1>
           <p className="mt-6 max-w-lg text-lg text-gray-600">
-            Setu gives Indian MSME exporters a dedicated virtual account in {CURRENCIES.join(", ")}, bank-grade
+            Xinto gives Indian MSME exporters a dedicated virtual account in {CURRENCIES.join(", ")}, bank-grade
             escrow, and real-time payment visibility — so you stop chasing banks and start growing exports.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
@@ -231,7 +233,7 @@ export function Landing() {
           </div>
           <div className="rounded-2xl border border-gray-200 bg-white p-6 pt-10 shadow-xl">
             <div className="mb-4 flex items-center justify-between text-sm">
-              <span className="font-semibold text-primary">Setu Platform</span>
+              <span className="font-semibold text-primary">Xinto Platform</span>
               <span className="flex items-center gap-1 text-xs text-emerald-600">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Preview
               </span>
@@ -288,7 +290,7 @@ export function Landing() {
           You exported. The buyer paid. Yet you wait, and wait, and wait.
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-gray-600">
-          Every MSME exporter trading internationally knows this pain. Setu was built to end it.
+          Every MSME exporter trading internationally knows this pain. Xinto was built to end it.
         </p>
         <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="rounded-xl border-l-4 border-red-400 bg-white p-6 text-left shadow-sm">
@@ -344,7 +346,7 @@ export function Landing() {
       {/* FX Savings comparison */}
       <Section>
         <div className="text-center">
-          <Eyebrow>Bank vs. Setu</Eyebrow>
+          <Eyebrow>Bank vs. Xinto</Eyebrow>
           <h2 className="font-display text-4xl text-gray-900">
             The spread difference alone pays for itself many times over.
           </h2>
@@ -355,7 +357,7 @@ export function Landing() {
               <tr>
                 <th className="px-6 py-3">What you pay for</th>
                 <th className="px-6 py-3">Your bank (SWIFT)</th>
-                <th className="px-6 py-3">Setu platform</th>
+                <th className="px-6 py-3">Xinto platform</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -443,7 +445,7 @@ export function Landing() {
           <h2 className="mx-auto max-w-2xl font-display text-4xl text-gray-900">
             Built for <span className="text-primary">Rajesh Mehta</span> — and exporters like him.
           </h2>
-          <p className="mt-3 text-gray-600">Setu is purpose-built for Indian MSME exporters trading internationally.</p>
+          <p className="mt-3 text-gray-600">Xinto is purpose-built for Indian MSME exporters trading internationally.</p>
         </div>
         <div className="mx-auto mt-10 max-w-2xl rounded-xl bg-gray-50 p-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">Customer persona</p>
@@ -518,7 +520,9 @@ export function Landing() {
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <span className="text-lg font-semibold text-primary">Setu</span>
+              <Link to="/" className="text-lg font-semibold text-primary hover:opacity-80">
+                Xinto
+              </Link>
               <p className="mt-2 text-sm text-gray-500">
                 A cross-border trade + payment platform demo for Indian MSME exporters. Mock services only — no
                 real bank, no real money movement.
@@ -573,7 +577,7 @@ export function Landing() {
             </div>
           </div>
           <p className="mt-10 border-t border-gray-100 pt-6 text-xs text-gray-400">
-            © 2026 Setu — MVP demo. All money movement is simulated.
+            © 2026 Xinto — MVP demo. All money movement is simulated.
           </p>
         </div>
       </footer>

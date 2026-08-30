@@ -18,7 +18,9 @@ export function BuyerWorkspace() {
     <div className="min-h-screen bg-gray-50 px-4 py-8">
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="text-center">
-          <p className="text-lg font-semibold text-primary">Setu</p>
+          <Link to="/" className="text-lg font-semibold text-primary hover:opacity-80">
+            Xinto
+          </Link>
           <p className="text-sm text-gray-500">Buyer workspace</p>
         </div>
 

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import type { DisputeReason } from "@setu/types";
 import { api } from "../../api";
 import { Card } from "../../components/Card";
@@ -46,7 +46,9 @@ export function BuyerPortal() {
     <div className="min-h-screen bg-gray-50 px-4 py-8">
       <div className="mx-auto max-w-lg space-y-6">
         <div className="text-center">
-          <p className="text-lg font-semibold text-primary">Setu</p>
+          <Link to="/" className="text-lg font-semibold text-primary hover:opacity-80">
+            Xinto
+          </Link>
           <p className="text-sm text-gray-500">Buyer portal</p>
         </div>
 

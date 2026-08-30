@@ -27,7 +27,7 @@ export function AuthGate({ mode }: AuthGateProps) {
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
           <Link to="/" className="text-xl font-semibold text-primary">
-            Setu
+            Xinto
           </Link>
           <p className="mt-1 text-sm text-gray-500">
             {isRegister ? "Create your exporter account" : "Welcome back"}
