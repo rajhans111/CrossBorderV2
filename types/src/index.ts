@@ -11,3 +11,5 @@ export * from "./compliance.js";
 export * from "./screening.js";
 export * from "./audit.js";
 export * from "./fx.js";
+export * from "./tradeOrderEvent.js";
+export * from "./unmatchedCredit.js";

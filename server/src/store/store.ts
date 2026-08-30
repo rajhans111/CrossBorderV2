@@ -1,0 +1,192 @@
+import { randomUUID } from "node:crypto";
+import type {
+  AuditEvent,
+  Buyer,
+  ComplianceArtefact,
+  Dispute,
+  EscrowPosition,
+  Exporter,
+  Invoice,
+  ScreeningCase,
+  TradeOrder,
+  UnmatchedVaCredit,
+  VirtualAccount,
+} from "@setu/types";
+
+export class Store {
+  private exporters = new Map<string, Exporter>();
+  private virtualAccounts = new Map<string, VirtualAccount>();
+  private buyers = new Map<string, Buyer>();
+  private tradeOrders = new Map<string, TradeOrder>();
+  private orderIdByReference = new Map<string, string>();
+  private escrowPositions = new Map<string, EscrowPosition>();
+  private invoices = new Map<string, Invoice>();
+  private disputes = new Map<string, Dispute>();
+  private complianceArtefacts: ComplianceArtefact[] = [];
+  private screeningCases: ScreeningCase[] = [];
+  private unmatchedCredits: UnmatchedVaCredit[] = [];
+  private auditLog: AuditEvent[] = [];
+
+  // --- Exporter / VirtualAccount ---
+
+  createExporter(input: Omit<Exporter, "id">): Exporter {
+    const exporter: Exporter = { ...input, id: randomUUID() };
+    this.exporters.set(exporter.id, exporter);
+    return exporter;
+  }
+
+  getExporter(): Exporter | undefined {
+    return [...this.exporters.values()][0];
+  }
+
+  createVirtualAccount(input: Omit<VirtualAccount, "id">): VirtualAccount {
+    const account: VirtualAccount = { ...input, id: randomUUID() };
+    this.virtualAccounts.set(account.id, account);
+    return account;
+  }
+
+  getVirtualAccount(id: string): VirtualAccount | undefined {
+    return this.virtualAccounts.get(id);
+  }
+
+  // --- Buyer ---
+
+  createBuyer(input: Omit<Buyer, "id">): Buyer {
+    const buyer: Buyer = { ...input, id: randomUUID() };
+    this.buyers.set(buyer.id, buyer);
+    return buyer;
+  }
+
+  getBuyer(id: string): Buyer | undefined {
+    return this.buyers.get(id);
+  }
+
+  getBuyers(): Buyer[] {
+    return [...this.buyers.values()];
+  }
+
+  // --- TradeOrder ---
+
+  createOrder(input: Omit<TradeOrder, "id" | "createdAt" | "updatedAt">): TradeOrder {
+    const now = new Date().toISOString();
+    const order: TradeOrder = { ...input, id: randomUUID(), createdAt: now, updatedAt: now };
+    this.tradeOrders.set(order.id, order);
+    this.orderIdByReference.set(order.reference, order.id);
+    return order;
+  }
+
+  saveOrder(order: TradeOrder): void {
+    this.tradeOrders.set(order.id, order);
+    this.orderIdByReference.set(order.reference, order.id);
+  }
+
+  getOrderByReference(reference: string): TradeOrder | undefined {
+    const id = this.orderIdByReference.get(reference);
+    return id ? this.tradeOrders.get(id) : undefined;
+  }
+
+  getAllOrders(): TradeOrder[] {
+    return [...this.tradeOrders.values()];
+  }
+
+  // --- EscrowPosition ---
+
+  saveEscrowPosition(position: EscrowPosition): void {
+    this.escrowPositions.set(position.orderId, position);
+  }
+
+  getEscrowPosition(orderId: string): EscrowPosition | undefined {
+    return this.escrowPositions.get(orderId);
+  }
+
+  // --- Invoice ---
+
+  saveInvoice(invoice: Invoice): void {
+    this.invoices.set(invoice.invoiceNo, invoice);
+  }
+
+  getInvoice(invoiceNo: string): Invoice | undefined {
+    return this.invoices.get(invoiceNo);
+  }
+
+  // --- Dispute ---
+
+  createDispute(input: Omit<Dispute, "id">): Dispute {
+    const dispute: Dispute = { ...input, id: randomUUID() };
+    this.disputes.set(dispute.id, dispute);
+    return dispute;
+  }
+
+  updateDispute(dispute: Dispute): void {
+    this.disputes.set(dispute.id, dispute);
+  }
+
+  getDispute(id: string): Dispute | undefined {
+    return this.disputes.get(id);
+  }
+
+  // --- ComplianceArtefact / ScreeningCase / UnmatchedVaCredit ---
+
+  addComplianceArtefact(input: Omit<ComplianceArtefact, "id">): ComplianceArtefact {
+    const artefact: ComplianceArtefact = { ...input, id: randomUUID() };
+    this.complianceArtefacts.push(artefact);
+    return artefact;
+  }
+
+  getComplianceArtefacts(): ComplianceArtefact[] {
+    return [...this.complianceArtefacts];
+  }
+
+  addScreeningCase(input: Omit<ScreeningCase, "id">): ScreeningCase {
+    const screeningCase: ScreeningCase = { ...input, id: randomUUID() };
+    this.screeningCases.push(screeningCase);
+    return screeningCase;
+  }
+
+  getScreeningCases(): ScreeningCase[] {
+    return [...this.screeningCases];
+  }
+
+  addUnmatchedCredit(input: Omit<UnmatchedVaCredit, "id">): UnmatchedVaCredit {
+    const credit: UnmatchedVaCredit = { ...input, id: randomUUID() };
+    this.unmatchedCredits.push(credit);
+    return credit;
+  }
+
+  getUnmatchedCredits(): UnmatchedVaCredit[] {
+    return [...this.unmatchedCredits];
+  }
+
+  // --- Audit log (append-only) ---
+
+  addAuditEvent(input: Omit<AuditEvent, "id" | "when">): AuditEvent {
+    const event: AuditEvent = Object.freeze({
+      ...input,
+      id: randomUUID(),
+      when: new Date().toISOString(),
+    });
+    this.auditLog.push(event);
+    return event;
+  }
+
+  getAuditTrail(): readonly AuditEvent[] {
+    return [...this.auditLog];
+  }
+
+  // --- Reset ---
+
+  clear(): void {
+    this.exporters.clear();
+    this.virtualAccounts.clear();
+    this.buyers.clear();
+    this.tradeOrders.clear();
+    this.orderIdByReference.clear();
+    this.escrowPositions.clear();
+    this.invoices.clear();
+    this.disputes.clear();
+    this.complianceArtefacts = [];
+    this.screeningCases = [];
+    this.unmatchedCredits = [];
+    this.auditLog = [];
+  }
+}
