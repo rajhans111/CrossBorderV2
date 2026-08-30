@@ -316,6 +316,30 @@ export function OrderDetail() {
                     </p>
                   </Card>
                 )}
+
+                {order.complianceArtefacts.length > 0 && (
+                  <Card>
+                    <h2 className="mb-2 font-semibold text-gray-900">Compliance</h2>
+                    <ul className="space-y-2">
+                      {order.complianceArtefacts.map((artefact) => (
+                        <li key={artefact.id} className="flex items-center justify-between text-sm">
+                          <span className="text-gray-700">{artefact.type}</span>
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                              artefact.status === "Issued"
+                                ? "bg-green-100 text-green-800"
+                                : artefact.status === "Filed"
+                                  ? "bg-teal-100 text-teal-800"
+                                  : "bg-amber-100 text-amber-800"
+                            }`}
+                          >
+                            {artefact.status}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                )}
               </div>
             </div>
           </>

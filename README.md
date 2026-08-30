@@ -181,6 +181,20 @@ same reference. This is not meant as real security — it's a stable-but-
 guessable-if-you-know-the-scheme identifier, appropriate for a demo link, not
 a production secret.
 
+## Compliance artefacts, made visible
+
+The final leg of the "definition of done" — EDPMS filed, e-FIRC and eBRC
+issued — was always generated correctly by `ComplianceService.fileArtefacts()`
+during `confirmDelivery`, but nothing in the UI ever displayed it: `getOrder`
+didn't return the artefacts for that order, and neither the order detail page
+nor the admin overview rendered the `complianceArtefacts` the admin API
+already returned. Fixed on both ends — `GET /api/orders/:ref` now includes
+`complianceArtefacts` (filtered to that order), the order detail page shows a
+"Compliance" card once any exist, and admin overview lists every filing
+platform-wide with its order reference. Verified live: pushed a fresh order
+through the full lifecycle and confirmed EDPMS/FIRC/eBRC all appear correctly
+in both places.
+
 ## Known limitations (MVP scope)
 
 - No visual/browser testing was performed on the UI in this session (built,

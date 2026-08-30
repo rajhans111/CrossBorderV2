@@ -28,6 +28,7 @@ export interface OrderDetail extends TradeOrder {
   dispute?: Dispute;
   fxQuote?: FxQuote;
   invoice?: Invoice;
+  complianceArtefacts: ComplianceArtefact[];
 }
 
 export interface ExporterDashboard {

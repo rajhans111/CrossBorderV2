@@ -209,6 +209,10 @@ export class Store {
     return [...this.complianceArtefacts];
   }
 
+  getComplianceArtefactsByOrderId(orderId: string): ComplianceArtefact[] {
+    return this.complianceArtefacts.filter((a) => a.orderId === orderId);
+  }
+
   addScreeningCase(input: Omit<ScreeningCase, "id">): ScreeningCase {
     const screeningCase: ScreeningCase = { ...input, id: randomUUID() };
     this.screeningCases.push(screeningCase);

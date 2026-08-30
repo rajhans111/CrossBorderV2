@@ -51,6 +51,7 @@ export function getOrder(req: Request, res: Response): void {
     dispute: order.disputeId ? store.getDispute(order.disputeId) : undefined,
     fxQuote: store.getFxQuote(order.id),
     invoice: store.getInvoiceByOrderId(order.id),
+    complianceArtefacts: store.getComplianceArtefactsByOrderId(order.id),
   });
 }
 
