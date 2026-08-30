@@ -6,6 +6,7 @@ import type {
   Dispute,
   EscrowPosition,
   Exporter,
+  FxQuote,
   Invoice,
   ScreeningCase,
   TradeOrder,
@@ -19,12 +20,14 @@ export class Store {
   private buyers = new Map<string, Buyer>();
   private tradeOrders = new Map<string, TradeOrder>();
   private orderIdByReference = new Map<string, string>();
+  private orderIdByToken = new Map<string, string>();
   private escrowPositions = new Map<string, EscrowPosition>();
   private invoices = new Map<string, Invoice>();
   private disputes = new Map<string, Dispute>();
   private complianceArtefacts: ComplianceArtefact[] = [];
   private screeningCases: ScreeningCase[] = [];
   private unmatchedCredits: UnmatchedVaCredit[] = [];
+  private fxQuotes = new Map<string, FxQuote>();
   private auditLog: AuditEvent[] = [];
 
   // --- Exporter / VirtualAccount ---
@@ -35,14 +38,26 @@ export class Store {
     return exporter;
   }
 
+  saveExporter(exporter: Exporter): void {
+    this.exporters.set(exporter.id, exporter);
+  }
+
   getExporter(): Exporter | undefined {
     return [...this.exporters.values()][0];
+  }
+
+  getExporterById(id: string): Exporter | undefined {
+    return this.exporters.get(id);
   }
 
   createVirtualAccount(input: Omit<VirtualAccount, "id">): VirtualAccount {
     const account: VirtualAccount = { ...input, id: randomUUID() };
     this.virtualAccounts.set(account.id, account);
     return account;
+  }
+
+  saveVirtualAccount(account: VirtualAccount): void {
+    this.virtualAccounts.set(account.id, account);
   }
 
   getVirtualAccount(id: string): VirtualAccount | undefined {
@@ -67,21 +82,34 @@ export class Store {
 
   // --- TradeOrder ---
 
-  createOrder(input: Omit<TradeOrder, "id" | "createdAt" | "updatedAt">): TradeOrder {
+  createOrder(input: Omit<TradeOrder, "id" | "createdAt" | "updatedAt" | "buyerToken">): TradeOrder {
     const now = new Date().toISOString();
-    const order: TradeOrder = { ...input, id: randomUUID(), createdAt: now, updatedAt: now };
+    const order: TradeOrder = {
+      ...input,
+      id: randomUUID(),
+      createdAt: now,
+      updatedAt: now,
+      buyerToken: randomUUID(),
+    };
     this.tradeOrders.set(order.id, order);
     this.orderIdByReference.set(order.reference, order.id);
+    this.orderIdByToken.set(order.buyerToken, order.id);
     return order;
   }
 
   saveOrder(order: TradeOrder): void {
     this.tradeOrders.set(order.id, order);
     this.orderIdByReference.set(order.reference, order.id);
+    this.orderIdByToken.set(order.buyerToken, order.id);
   }
 
   getOrderByReference(reference: string): TradeOrder | undefined {
     const id = this.orderIdByReference.get(reference);
+    return id ? this.tradeOrders.get(id) : undefined;
+  }
+
+  getOrderByToken(token: string): TradeOrder | undefined {
+    const id = this.orderIdByToken.get(token);
     return id ? this.tradeOrders.get(id) : undefined;
   }
 
@@ -102,11 +130,11 @@ export class Store {
   // --- Invoice ---
 
   saveInvoice(invoice: Invoice): void {
-    this.invoices.set(invoice.invoiceNo, invoice);
+    this.invoices.set(invoice.orderId, invoice);
   }
 
-  getInvoice(invoiceNo: string): Invoice | undefined {
-    return this.invoices.get(invoiceNo);
+  getInvoiceByOrderId(orderId: string): Invoice | undefined {
+    return this.invoices.get(orderId);
   }
 
   // --- Dispute ---
@@ -123,6 +151,20 @@ export class Store {
 
   getDispute(id: string): Dispute | undefined {
     return this.disputes.get(id);
+  }
+
+  getAllDisputes(): Dispute[] {
+    return [...this.disputes.values()];
+  }
+
+  // --- FxQuote ---
+
+  saveFxQuote(orderId: string, quote: FxQuote): void {
+    this.fxQuotes.set(orderId, quote);
+  }
+
+  getFxQuote(orderId: string): FxQuote | undefined {
+    return this.fxQuotes.get(orderId);
   }
 
   // --- ComplianceArtefact / ScreeningCase / UnmatchedVaCredit ---
@@ -181,12 +223,14 @@ export class Store {
     this.buyers.clear();
     this.tradeOrders.clear();
     this.orderIdByReference.clear();
+    this.orderIdByToken.clear();
     this.escrowPositions.clear();
     this.invoices.clear();
     this.disputes.clear();
     this.complianceArtefacts = [];
     this.screeningCases = [];
     this.unmatchedCredits = [];
+    this.fxQuotes.clear();
     this.auditLog = [];
   }
 }

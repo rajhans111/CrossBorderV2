@@ -19,4 +19,6 @@ export interface TradeOrder {
   updatedAt: string;
   shippingDocs: ShippingDoc[];
   disputeId?: string;
+  /** Unguessable token for the no-login buyer magic-link portal. */
+  buyerToken: string;
 }
