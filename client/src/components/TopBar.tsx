@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export function TopBar() {
@@ -15,7 +15,9 @@ export function TopBar() {
   return (
     <header className="flex items-center justify-between gap-4 border-b border-gray-200 bg-white px-6 py-3">
       <div className="flex items-center gap-6">
-        <span className="text-lg font-semibold text-primary">Setu</span>
+        <Link to="/exporter/dashboard" className="text-lg font-semibold text-primary hover:opacity-80">
+          Setu
+        </Link>
         <nav className="flex gap-1 rounded-lg bg-gray-100 p-1 text-sm">
           <NavLink
             to="/exporter/dashboard"
