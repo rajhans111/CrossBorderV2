@@ -9,6 +9,7 @@ import type {
 } from "@setu/types";
 import type { Store } from "./store.js";
 import { transitionOrder } from "../services/orderService.js";
+import { completeOnboarding } from "../services/onboardingService.js";
 
 function shippingDocs(confirmed: boolean): ShippingDoc[] {
   const status = confirmed ? "confirmed" : "pending";
@@ -198,35 +199,19 @@ const SEED_ORDERS: SeedOrderSpec[] = [
 ];
 
 export function loadSeed(store: Store): void {
-  const primaryVirtualAccount = VIRTUAL_ACCOUNTS[0]!;
-  let exporterVirtualAccountId = "";
-  for (const account of VIRTUAL_ACCOUNTS) {
-    const created = store.createVirtualAccount(account);
-    if (account.currency === primaryVirtualAccount.currency) {
-      exporterVirtualAccountId = created.id;
-    }
-  }
-
-  const exporter = store.createExporter({
+  // The demo exporter is seeded as already-onboarded, but it still goes
+  // through the real completeOnboarding() service — the same path a newly
+  // registered exporter would take — so the virtual accounts are genuinely
+  // created and linked via onboarding, not just dropped into the store.
+  completeOnboarding(store, {
     companyName: "Mehta Knitwear Exports Pvt Ltd",
     gstin: "33AABCM1234A1Z5",
     iec: "AABCM1234A",
     msmeUdyam: "UDYAM-TN-03-0012345",
     city: "Tirupur",
     industry: "Textile",
-    kycStatus: "Approved",
     linkedBankAccount: "HDFC0001234 (Demo)",
-    virtualAccountId: exporterVirtualAccountId,
-  });
-
-  store.addAuditEvent({
-    event: "kyc.approved",
-    actor: "system",
-    entity: `Exporter:${exporter.companyName}`,
-    privileged: true,
-    beforeState: { kycStatus: "Pending" },
-    afterState: { kycStatus: "Approved" },
-    evidence: "seeded as pre-approved for demo purposes",
+    virtualAccounts: VIRTUAL_ACCOUNTS,
   });
 
   const buyerNames = [

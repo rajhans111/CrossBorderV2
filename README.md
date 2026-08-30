@@ -204,6 +204,35 @@ historical `XO-DONE07`, which keeps its literal spec-given fact — EDPMS
 `Pending Ad Bank Ack` — since that's a static snapshot of a pre-existing
 order, not something the live filing flow produced.
 
+## Onboarding creates the virtual accounts, not server boot
+
+Previously the seed data called `store.createVirtualAccount()` and
+`store.createExporter()` directly, with a separate manual `kyc.approved`
+audit event bolted on — virtual accounts existed because the server booted,
+not because anyone "onboarded." That's now a real service,
+`server/src/services/onboardingService.ts`'s `completeOnboarding()`: given an
+exporter's business/KYC/bank details plus the currencies to provision, it
+creates every `VirtualAccount`, creates the `Exporter` linked to the first
+(primary) one, and records a single `onboarding.completed` audit event with
+before/after state. The seed data now calls this same function instead of
+duplicating its steps — the demo exporter is *seeded as already onboarded*,
+but it gets there by walking the same path a real signup would. Verified
+live: `GET /api/admin/overview`'s audit trail shows the `onboarding.completed`
+event linking the exporter to all 6 provisioned virtual accounts, and
+`POST /api/admin/reset` still restores the exact original seed (7 active
+orders, 152,900 SGD in escrow) through this path.
+
+The exporter's **Onboarding** page (`/exporter/onboarding`) is rebuilt to
+match a tabbed 4-step wizard (Business → Director KYC → Bank account →
+Review, plus a "Profile summary" view) instead of a flat checklist. Since
+this exporter is already onboarded, the page runs in a locked "Preview
+mode" — every field is pre-filled and disabled, showing what a new exporter
+would have filled in to reach this state. A few fields the domain model
+doesn't carry (director name, INR bank account number) are shown as fixed
+demo values — see the comment in `Onboarding.tsx` — since adding a full
+director/bank-account entity is out of scope for what's otherwise a
+read-only preview of a flow that already ran.
+
 ## Known limitations (MVP scope)
 
 - No visual/browser testing was performed on the UI in this session (built,
