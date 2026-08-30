@@ -5,7 +5,7 @@ import { api } from "../../api";
 import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
-import { formatSgd } from "../../lib/format";
+import { formatMoney } from "../../lib/format";
 
 const STATUSES: TradeOrderStatus[] = [
   "Created",
@@ -96,7 +96,7 @@ export function OrdersList() {
                     </td>
                     <td className="px-6 py-3 text-gray-700">{order.buyerName}</td>
                     <td className="px-6 py-3 text-gray-700">{order.product}</td>
-                    <td className="px-6 py-3 text-gray-700">{formatSgd(order.amountSgd)}</td>
+                    <td className="px-6 py-3 text-gray-700">{formatMoney(order.amount, order.currency)}</td>
                     <td className="px-6 py-3">
                       <StatusPill status={order.status} />
                     </td>

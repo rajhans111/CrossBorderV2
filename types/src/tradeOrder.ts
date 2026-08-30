@@ -1,5 +1,6 @@
 import type { TradeOrderStatus } from "./orderStatus.js";
 import type { ShippingDoc } from "./shippingDoc.js";
+import type { Currency } from "./currency.js";
 
 export type Incoterm = "FOB" | "CIF" | "EXW";
 export type PaymentTerms = "TT" | "LC" | "DP" | "DA";
@@ -10,7 +11,8 @@ export interface TradeOrder {
   buyerId: string;
   product: string;
   quantity: number;
-  amountSgd: number;
+  amount: number;
+  currency: Currency;
   incoterm: Incoterm;
   hsCode: string;
   paymentTerms: PaymentTerms;

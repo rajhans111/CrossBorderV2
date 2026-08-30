@@ -6,7 +6,7 @@ import { api } from "../../api";
 import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
-import { formatSgd } from "../../lib/format";
+import { formatMoney } from "../../lib/format";
 
 const DISPUTE_REASONS: { value: DisputeReason; label: string }[] = [
   { value: "goods_not_received", label: "Goods not received" },
@@ -61,7 +61,9 @@ export function BuyerPortal() {
                   </div>
                   <StatusPill status={data.order.status} />
                 </div>
-                <p className="mt-3 text-2xl font-semibold text-gray-900">{formatSgd(data.order.amountSgd)}</p>
+                <p className="mt-3 text-2xl font-semibold text-gray-900">
+                  {formatMoney(data.order.amount, data.order.currency)}
+                </p>
               </Card>
 
               {mutationError && (
@@ -102,7 +104,8 @@ export function BuyerPortal() {
                 <Card>
                   <h2 className="mb-1 font-semibold text-gray-900">Funds in escrow</h2>
                   <p className="text-sm text-gray-600">
-                    {formatSgd(data.escrowPosition.amountSgd)} held — released once you confirm delivery.
+                    {formatMoney(data.escrowPosition.amount, data.escrowPosition.currency)} held — released once you
+                    confirm delivery.
                   </p>
                 </Card>
               )}

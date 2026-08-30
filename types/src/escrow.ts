@@ -1,3 +1,5 @@
+import type { Currency } from "./currency.js";
+
 export type EscrowStatus = "Held" | "Released" | "Refunded" | "Disputed";
 
 export interface EscrowEvent {
@@ -7,7 +9,8 @@ export interface EscrowEvent {
 
 export interface EscrowPosition {
   orderId: string;
-  amountSgd: number;
+  amount: number;
+  currency: Currency;
   status: EscrowStatus;
   events: EscrowEvent[];
 }

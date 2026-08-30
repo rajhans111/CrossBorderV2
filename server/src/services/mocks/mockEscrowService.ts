@@ -1,4 +1,4 @@
-import type { EscrowPosition, TradeOrder } from "@setu/types";
+import type { Currency, EscrowPosition, TradeOrder } from "@setu/types";
 import type { Store } from "../../store/store.js";
 import type { EscrowServiceInterface } from "../interfaces/escrowService.js";
 
@@ -9,12 +9,10 @@ function withAppendedEvent(position: EscrowPosition, event: string): EscrowPosit
   };
 }
 
-function adjustVirtualAccountBalance(store: Store, deltaSgd: number): void {
-  const exporter = store.getExporter();
-  if (!exporter) return;
-  const account = store.getVirtualAccount(exporter.virtualAccountId);
+function adjustVirtualAccountBalance(store: Store, currency: Currency, delta: number): void {
+  const account = store.getVirtualAccountByCurrency(currency);
   if (!account) return;
-  store.saveVirtualAccount({ ...account, escrowBalanceSgd: account.escrowBalanceSgd + deltaSgd });
+  store.saveVirtualAccount({ ...account, escrowBalance: account.escrowBalance + delta });
 }
 
 function requireEscrowPosition(store: Store, order: TradeOrder): EscrowPosition {
@@ -29,12 +27,13 @@ export const mockEscrowService: EscrowServiceInterface = {
   hold(store, order) {
     const position: EscrowPosition = {
       orderId: order.id,
-      amountSgd: order.amountSgd,
+      amount: order.amount,
+      currency: order.currency,
       status: "Held",
       events: [{ when: new Date().toISOString(), event: "escrow.held" }],
     };
     store.saveEscrowPosition(position);
-    adjustVirtualAccountBalance(store, order.amountSgd);
+    adjustVirtualAccountBalance(store, order.currency, order.amount);
     store.addAuditEvent({
       event: "escrow.held",
       actor: "system",
@@ -48,7 +47,7 @@ export const mockEscrowService: EscrowServiceInterface = {
     const existing = requireEscrowPosition(store, order);
     const updated: EscrowPosition = { ...withAppendedEvent(existing, "escrow.released"), status: "Released" };
     store.saveEscrowPosition(updated);
-    adjustVirtualAccountBalance(store, -existing.amountSgd);
+    adjustVirtualAccountBalance(store, existing.currency, -existing.amount);
     store.addAuditEvent({
       event: "escrow.released",
       actor: "system",
@@ -62,7 +61,7 @@ export const mockEscrowService: EscrowServiceInterface = {
     const existing = requireEscrowPosition(store, order);
     const updated: EscrowPosition = { ...withAppendedEvent(existing, "escrow.refunded"), status: "Refunded" };
     store.saveEscrowPosition(updated);
-    adjustVirtualAccountBalance(store, -existing.amountSgd);
+    adjustVirtualAccountBalance(store, existing.currency, -existing.amount);
     store.addAuditEvent({
       event: "escrow.refunded",
       actor: "system",

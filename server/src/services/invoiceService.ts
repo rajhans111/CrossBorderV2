@@ -16,25 +16,26 @@ export function generateInvoice(store: Store, reference: string): Invoice {
   if (!buyer) {
     throw new NotFoundError(`No buyer for order "${reference}"`);
   }
-  const virtualAccount = store.getVirtualAccount(exporter.virtualAccountId);
+  const virtualAccount = store.getVirtualAccountByCurrency(order.currency);
 
   const invoice: Invoice = {
     invoiceNo: `INV-${order.reference}`,
     orderId: order.id,
     from: exporter.companyName,
     billTo: buyer.name,
+    currency: order.currency,
     lineItems: [
       {
         description: order.product,
         quantity: order.quantity,
-        unitPriceSgd: round2(order.amountSgd / order.quantity),
+        unitPrice: round2(order.amount / order.quantity),
       },
     ],
-    subtotal: order.amountSgd,
-    totalDue: order.amountSgd,
+    subtotal: order.amount,
+    totalDue: order.amount,
     paymentInstructions: virtualAccount
-      ? `Pay SGD ${order.amountSgd} to ${virtualAccount.bankName}, account ${virtualAccount.accountNo} (SWIFT ${virtualAccount.swift}), referencing ${order.reference}.`
-      : `Pay SGD ${order.amountSgd}, referencing ${order.reference}.`,
+      ? `Pay ${order.currency} ${order.amount} to ${virtualAccount.bankName}, account ${virtualAccount.accountNo} (SWIFT ${virtualAccount.swift}), referencing ${order.reference}.`
+      : `Pay ${order.currency} ${order.amount}, referencing ${order.reference}.`,
     status: "Sent",
   };
 

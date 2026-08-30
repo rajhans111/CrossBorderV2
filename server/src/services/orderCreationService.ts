@@ -1,4 +1,4 @@
-import type { Incoterm, PaymentTerms, TradeOrder } from "@setu/types";
+import type { Currency, Incoterm, PaymentTerms, TradeOrder } from "@setu/types";
 import type { Store } from "../store/store.js";
 import { ValidationError } from "../errors.js";
 import { SHIPPING_DOC_SEQUENCE } from "./shippingDocService.js";
@@ -7,7 +7,8 @@ export interface CreateOrderInput {
   buyerId: string;
   product: string;
   quantity: number;
-  amountSgd: number;
+  amount: number;
+  currency: Currency;
   incoterm: Incoterm;
   hsCode: string;
   paymentTerms: PaymentTerms;
@@ -18,6 +19,9 @@ export function createOrder(store: Store, input: CreateOrderInput): TradeOrder {
   if (!buyer) {
     throw new ValidationError(`Unknown buyerId "${input.buyerId}"`);
   }
+  if (!store.getVirtualAccountByCurrency(input.currency)) {
+    throw new ValidationError(`No virtual account configured for currency "${input.currency}"`);
+  }
 
   const reference = nextReference(store);
   const order = store.createOrder({
@@ -25,7 +29,8 @@ export function createOrder(store: Store, input: CreateOrderInput): TradeOrder {
     buyerId: input.buyerId,
     product: input.product,
     quantity: input.quantity,
-    amountSgd: input.amountSgd,
+    amount: input.amount,
+    currency: input.currency,
     incoterm: input.incoterm,
     hsCode: input.hsCode,
     paymentTerms: input.paymentTerms,

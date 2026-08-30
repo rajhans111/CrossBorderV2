@@ -4,7 +4,7 @@ import { api } from "../../api";
 import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
-import { formatInr, formatSgd } from "../../lib/format";
+import { formatInr, formatMoney, formatSgd } from "../../lib/format";
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
@@ -35,6 +35,19 @@ export function Dashboard() {
               <StatCard label="FX saved this month" value={formatInr(data.fxSavedThisMonthInr)} />
             </div>
 
+            {data.virtualAccounts.some((a) => a.currency !== "SGD" && a.escrowBalance > 0) && (
+              <Card>
+                <p className="mb-2 text-sm font-medium text-gray-900">Other currency balances</p>
+                <div className="flex flex-wrap gap-4 text-sm text-gray-700">
+                  {data.virtualAccounts
+                    .filter((a) => a.currency !== "SGD" && a.escrowBalance > 0)
+                    .map((a) => (
+                      <span key={a.currency}>{formatMoney(a.escrowBalance, a.currency)}</span>
+                    ))}
+                </div>
+              </Card>
+            )}
+
             <Card>
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="font-semibold text-gray-900">Recent orders</h2>
@@ -64,7 +77,7 @@ export function Dashboard() {
                           </Link>
                         </td>
                         <td className="py-2 pr-4 text-gray-700">{order.product}</td>
-                        <td className="py-2 pr-4 text-gray-700">{formatSgd(order.amountSgd)}</td>
+                        <td className="py-2 pr-4 text-gray-700">{formatMoney(order.amount, order.currency)}</td>
                         <td className="py-2">
                           <StatusPill status={order.status} />
                         </td>

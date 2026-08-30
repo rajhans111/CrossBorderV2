@@ -7,7 +7,7 @@ import { Card } from "../../components/Card";
 import { JourneyMap } from "../../components/JourneyMap";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
-import { formatDate, formatInr, formatSgd } from "../../lib/format";
+import { formatDate, formatInr, formatMoney } from "../../lib/format";
 
 const DOC_LABELS: Record<ShippingDocType, string> = {
   packing_list: "Packing list",
@@ -76,7 +76,7 @@ export function OrderDetail() {
                       <p className="font-mono text-sm text-primary">{order.reference}</p>
                       <h1 className="text-lg font-semibold text-gray-900">{order.buyer?.name}</h1>
                       <p className="text-sm text-gray-500">
-                        {formatSgd(order.amountSgd)} · {order.product}
+                        {formatMoney(order.amount, order.currency)} · {order.product}
                       </p>
                     </div>
                     <StatusPill status={order.status} />
@@ -102,7 +102,7 @@ export function OrderDetail() {
                   {order.invoice ? (
                     <div className="text-sm text-gray-700">
                       <p className="font-medium text-gray-900">{order.invoice.invoiceNo}</p>
-                      <p className="text-xs text-gray-500">Total due: {formatSgd(order.invoice.totalDue)}</p>
+                      <p className="text-xs text-gray-500">Total due: {formatMoney(order.invoice.totalDue, order.invoice.currency)}</p>
                     </div>
                   ) : (
                     <button
@@ -213,7 +213,7 @@ export function OrderDetail() {
                     </div>
                     <div>
                       <dt className="text-gray-400">Amount</dt>
-                      <dd className="text-gray-900">{formatSgd(order.amountSgd)}</dd>
+                      <dd className="text-gray-900">{formatMoney(order.amount, order.currency)}</dd>
                     </div>
                     <div>
                       <dt className="text-gray-400">Quantity</dt>
@@ -268,7 +268,7 @@ export function OrderDetail() {
                   {order.invoice ? (
                     <div className="text-sm text-gray-700">
                       <p className="font-medium text-gray-900">{order.invoice.invoiceNo}</p>
-                      <p>Total due: {formatSgd(order.invoice.totalDue)}</p>
+                      <p>Total due: {formatMoney(order.invoice.totalDue, order.invoice.currency)}</p>
                       <p className="mt-1 text-gray-500">{order.invoice.paymentInstructions}</p>
                     </div>
                   ) : (
@@ -292,7 +292,7 @@ export function OrderDetail() {
                   <Card>
                     <h2 className="mb-2 font-semibold text-gray-900">Escrow</h2>
                     <p className="text-sm text-gray-700">
-                      {formatSgd(order.escrowPosition.amountSgd)} · {order.escrowPosition.status}
+                      {formatMoney(order.escrowPosition.amount, order.escrowPosition.currency)} · {order.escrowPosition.status}
                     </p>
                     <ul className="mt-2 space-y-1 text-xs text-gray-500">
                       {order.escrowPosition.events.map((e, i) => (
@@ -307,7 +307,9 @@ export function OrderDetail() {
                 {order.fxQuote && (
                   <Card>
                     <h2 className="mb-2 font-semibold text-gray-900">FX settlement</h2>
-                    <p className="text-sm text-gray-700">Rate: {order.fxQuote.rateSgdInr} SGD/INR</p>
+                    <p className="text-sm text-gray-700">
+                      Rate: {order.fxQuote.rateToInr} {order.fxQuote.currency}/INR
+                    </p>
                     <p className="text-sm text-gray-700">Net credited: {formatInr(order.fxQuote.netInr)}</p>
                     <p className="text-sm text-emerald-700">
                       Saved vs. bank: {formatInr(order.fxQuote.savedVsBankInr)}

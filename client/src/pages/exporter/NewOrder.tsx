@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Incoterm, PaymentTerms } from "@setu/types";
+import type { Currency, Incoterm, PaymentTerms } from "@setu/types";
+import { CURRENCIES } from "@setu/types";
 import { api } from "../../api";
 import { Card } from "../../components/Card";
 
@@ -17,7 +18,8 @@ export function NewOrder() {
     buyerId: "",
     product: "",
     quantity: "",
-    amountSgd: "",
+    amount: "",
+    currency: "SGD" as Currency,
     incoterm: "FOB" as Incoterm,
     hsCode: "",
     paymentTerms: "TT" as PaymentTerms,
@@ -29,7 +31,8 @@ export function NewOrder() {
         buyerId: form.buyerId,
         product: form.product,
         quantity: Number(form.quantity),
-        amountSgd: Number(form.amountSgd),
+        amount: Number(form.amount),
+        currency: form.currency,
         incoterm: form.incoterm,
         hsCode: form.hsCode,
         paymentTerms: form.paymentTerms,
@@ -95,15 +98,28 @@ export function NewOrder() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Amount (SGD)</label>
-              <input
-                required
-                type="number"
-                min={1}
-                value={form.amountSgd}
-                onChange={(e) => setForm({ ...form, amountSgd: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              />
+              <label className="mb-1 block text-sm font-medium text-gray-700">Amount</label>
+              <div className="flex gap-2">
+                <select
+                  value={form.currency}
+                  onChange={(e) => setForm({ ...form, currency: e.target.value as Currency })}
+                  className="rounded-lg border border-gray-300 px-2 py-2 text-sm"
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  required
+                  type="number"
+                  min={1}
+                  value={form.amount}
+                  onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+              </div>
             </div>
           </div>
 

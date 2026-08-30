@@ -17,8 +17,8 @@ export function Onboarding() {
         { label: "KYC verification", detail: `Status: ${data.exporter.kycStatus}`, done: data.exporter.kycStatus === "Approved" },
         { label: "Bank account linked", detail: data.exporter.linkedBankAccount, done: true },
         {
-          label: "Virtual SGD account provisioned",
-          detail: data.virtualAccount?.accountNo,
+          label: "Virtual accounts provisioned",
+          detail: `${data.virtualAccounts.length} currencies ready (incl. ${data.virtualAccount?.accountNo})`,
           done: Boolean(data.virtualAccount),
         },
       ]

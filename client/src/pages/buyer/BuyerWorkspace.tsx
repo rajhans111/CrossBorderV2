@@ -4,7 +4,7 @@ import { api } from "../../api";
 import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
-import { formatSgd } from "../../lib/format";
+import { formatMoney } from "../../lib/format";
 
 export function BuyerWorkspace() {
   const { token = "" } = useParams();
@@ -48,7 +48,7 @@ export function BuyerWorkspace() {
                           <div>
                             <p className="text-sm font-medium text-primary">{order.reference}</p>
                             <p className="text-sm text-gray-700">{order.product}</p>
-                            <p className="text-xs text-gray-400">{formatSgd(order.amountSgd)}</p>
+                            <p className="text-xs text-gray-400">{formatMoney(order.amount, order.currency)}</p>
                           </div>
                           <StatusPill status={order.status} />
                         </Link>

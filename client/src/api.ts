@@ -2,6 +2,7 @@ import type {
   AuditEvent,
   Buyer,
   ComplianceArtefact,
+  Currency,
   Dispute,
   DisputeReason,
   EscrowPosition,
@@ -32,6 +33,7 @@ export interface OrderDetail extends TradeOrder {
 export interface ExporterDashboard {
   exporter: Exporter;
   virtualAccount?: VirtualAccount;
+  virtualAccounts: VirtualAccount[];
   inEscrowSgd: number;
   receivedThisMonthInr: number;
   fxSavedThisMonthInr: number;
@@ -41,7 +43,7 @@ export interface ExporterDashboard {
 
 export interface HeldPosition {
   reference: string;
-  amountSgd: number;
+  amount: number;
   status: EscrowPosition["status"];
 }
 
@@ -76,7 +78,8 @@ export interface CreateOrderPayload {
   buyerId: string;
   product: string;
   quantity: number;
-  amountSgd: number;
+  amount: number;
+  currency: Currency;
   incoterm: Incoterm;
   hsCode: string;
   paymentTerms: PaymentTerms;
@@ -123,7 +126,7 @@ export const api = {
 
   // Exporter
   getDashboard: () => request<ExporterDashboard>("/exporter/dashboard"),
-  getVirtualAccount: () => request<VirtualAccountView>("/exporter/virtual-account"),
+  getVirtualAccounts: () => request<{ accounts: VirtualAccountView[] }>("/exporter/virtual-account"),
   getBuyers: () => request<Buyer[]>("/exporter/buyers"),
 
   // Buyer (magic link)

@@ -1,4 +1,5 @@
 import type {
+  Currency,
   DisputeReason,
   Incoterm,
   PaymentTerms,
@@ -28,12 +29,67 @@ const MAIN_PATH: { status: TradeOrderStatus; event: TradeOrderEvent }[] = [
   { status: "Completed", event: { type: "COMPLETE" } },
 ];
 
+// Every seeded VirtualAccount, one per supported currency. Only SGD carries
+// the spec's literal opening balance/account facts; the rest start empty and
+// exist so newly created orders in other currencies have somewhere to settle.
+const VIRTUAL_ACCOUNTS: {
+  currency: Currency;
+  accountNo: string;
+  bankName: string;
+  swift: string;
+  escrowBalance: number;
+}[] = [
+  {
+    currency: "SGD",
+    accountNo: "SGD7788123456",
+    bankName: "MAS Partner Bank (Demo)",
+    swift: "XINT0SGSXXX",
+    escrowBalance: 152_900,
+  },
+  {
+    currency: "USD",
+    accountNo: "USD4402198765",
+    bankName: "Global Partner Bank (Demo)",
+    swift: "XINT0USNYXX",
+    escrowBalance: 0,
+  },
+  {
+    currency: "EUR",
+    accountNo: "EUR9931056421",
+    bankName: "Euro Partner Bank (Demo)",
+    swift: "XINT0DEFRXX",
+    escrowBalance: 0,
+  },
+  {
+    currency: "GBP",
+    accountNo: "GBP1187654320",
+    bankName: "UK Partner Bank (Demo)",
+    swift: "XINT0GBLNXX",
+    escrowBalance: 0,
+  },
+  {
+    currency: "AED",
+    accountNo: "AED6650012398",
+    bankName: "Gulf Partner Bank (Demo)",
+    swift: "XINT0AEDXXX",
+    escrowBalance: 0,
+  },
+  {
+    currency: "AUD",
+    accountNo: "AUD3324567891",
+    bankName: "Sydney Partner Bank (Demo)",
+    swift: "XINT0AUSYXX",
+    escrowBalance: 0,
+  },
+];
+
 interface SeedOrderSpec {
   reference: string;
   buyerName: string;
   product: string;
   quantity: number;
-  amountSgd: number;
+  amount: number;
+  currency: Currency;
   incoterm: Incoterm;
   hsCode: string;
   paymentTerms: PaymentTerms;
@@ -47,7 +103,8 @@ const SEED_ORDERS: SeedOrderSpec[] = [
     buyerName: "Orchid Home Living",
     product: "Sample pack — mixed knits",
     quantity: 50,
-    amountSgd: 9_800,
+    amount: 9_800,
+    currency: "SGD",
     incoterm: "EXW",
     hsCode: "6109.10",
     paymentTerms: "TT",
@@ -58,7 +115,8 @@ const SEED_ORDERS: SeedOrderSpec[] = [
     buyerName: "Pacific Softgoods Pte Ltd",
     product: "Jersey dresses — 3,200 pcs",
     quantity: 3_200,
-    amountSgd: 41_800,
+    amount: 41_800,
+    currency: "SGD",
     incoterm: "FOB",
     hsCode: "6104.43",
     paymentTerms: "TT",
@@ -69,7 +127,8 @@ const SEED_ORDERS: SeedOrderSpec[] = [
     buyerName: "Harbour Fashion SG",
     product: "Fleece hoodies — 2,400 pcs",
     quantity: 2_400,
-    amountSgd: 22_100,
+    amount: 22_100,
+    currency: "SGD",
     incoterm: "FOB",
     hsCode: "6110.20",
     paymentTerms: "TT",
@@ -81,7 +140,8 @@ const SEED_ORDERS: SeedOrderSpec[] = [
     buyerName: "Lion City Retail Pte Ltd",
     product: "Ribbed tank tops — 9,600 pcs",
     quantity: 9_600,
-    amountSgd: 33_400,
+    amount: 33_400,
+    currency: "SGD",
     incoterm: "FOB",
     hsCode: "6109.90",
     paymentTerms: "TT",
@@ -92,7 +152,8 @@ const SEED_ORDERS: SeedOrderSpec[] = [
     buyerName: "Orchid Home Living",
     product: "Home textile cushion covers — 6,000 pcs",
     quantity: 6_000,
-    amountSgd: 15_600,
+    amount: 15_600,
+    currency: "SGD",
     incoterm: "CIF",
     hsCode: "6304.93",
     paymentTerms: "DP",
@@ -103,7 +164,8 @@ const SEED_ORDERS: SeedOrderSpec[] = [
     buyerName: "Pacific Softgoods Pte Ltd",
     product: "Polyester blend polos — 18,000 pcs",
     quantity: 18_000,
-    amountSgd: 72_000,
+    amount: 72_000,
+    currency: "SGD",
     incoterm: "FOB",
     hsCode: "6105.20",
     paymentTerms: "TT",
@@ -114,7 +176,8 @@ const SEED_ORDERS: SeedOrderSpec[] = [
     buyerName: "Harbour Fashion SG",
     product: "Organic cotton kidswear",
     quantity: 5_000,
-    amountSgd: 28_500,
+    amount: 28_500,
+    currency: "SGD",
     incoterm: "FOB",
     hsCode: "6111.20",
     paymentTerms: "TT",
@@ -125,7 +188,8 @@ const SEED_ORDERS: SeedOrderSpec[] = [
     buyerName: "Lion City Retail Pte Ltd",
     product: "Cotton knit T-shirts — 12,000 pcs",
     quantity: 12_000,
-    amountSgd: 50_000,
+    amount: 50_000,
+    currency: "SGD",
     incoterm: "FOB",
     hsCode: "6109.10",
     paymentTerms: "LC",
@@ -134,12 +198,14 @@ const SEED_ORDERS: SeedOrderSpec[] = [
 ];
 
 export function loadSeed(store: Store): void {
-  const virtualAccount = store.createVirtualAccount({
-    accountNo: "SGD7788123456",
-    bankName: "MAS Partner Bank (Demo)",
-    swift: "XINT0SGSXXX",
-    escrowBalanceSgd: 152_900,
-  });
+  const primaryVirtualAccount = VIRTUAL_ACCOUNTS[0]!;
+  let exporterVirtualAccountId = "";
+  for (const account of VIRTUAL_ACCOUNTS) {
+    const created = store.createVirtualAccount(account);
+    if (account.currency === primaryVirtualAccount.currency) {
+      exporterVirtualAccountId = created.id;
+    }
+  }
 
   const exporter = store.createExporter({
     companyName: "Mehta Knitwear Exports Pvt Ltd",
@@ -150,7 +216,7 @@ export function loadSeed(store: Store): void {
     industry: "Textile",
     kycStatus: "Approved",
     linkedBankAccount: "HDFC0001234 (Demo)",
-    virtualAccountId: virtualAccount.id,
+    virtualAccountId: exporterVirtualAccountId,
   });
 
   store.addAuditEvent({
@@ -195,7 +261,8 @@ export function loadSeed(store: Store): void {
       buyerId: buyer.id,
       product: spec.product,
       quantity: spec.quantity,
-      amountSgd: spec.amountSgd,
+      amount: spec.amount,
+      currency: spec.currency,
       incoterm: spec.incoterm,
       hsCode: spec.hsCode,
       paymentTerms: spec.paymentTerms,
@@ -226,21 +293,24 @@ export function loadSeed(store: Store): void {
     if (finalOrder.status === "InEscrow" || finalOrder.status === "Shipped") {
       store.saveEscrowPosition({
         orderId: finalOrder.id,
-        amountSgd: finalOrder.amountSgd,
+        amount: finalOrder.amount,
+        currency: finalOrder.currency,
         status: "Held",
         events: [{ when: finalOrder.updatedAt, event: "escrow.held" }],
       });
     } else if (finalOrder.status === "Disputed") {
       store.saveEscrowPosition({
         orderId: finalOrder.id,
-        amountSgd: finalOrder.amountSgd,
+        amount: finalOrder.amount,
+        currency: finalOrder.currency,
         status: "Disputed",
         events: [{ when: finalOrder.updatedAt, event: "escrow.disputed" }],
       });
     } else if (finalOrder.status === "Completed") {
       store.saveEscrowPosition({
         orderId: finalOrder.id,
-        amountSgd: finalOrder.amountSgd,
+        amount: finalOrder.amount,
+        currency: finalOrder.currency,
         status: "Released",
         events: [{ when: finalOrder.updatedAt, event: "escrow.released" }],
       });
@@ -267,7 +337,8 @@ export function loadSeed(store: Store): void {
   });
 
   store.addUnmatchedCredit({
-    amountSgd: 2_500,
+    amount: 2_500,
+    currency: "SGD",
     remitterName: "Unknown SG Remitter",
     receivedAt: new Date().toISOString(),
     note: "Inbound VA credit could not be matched to an open trade order.",

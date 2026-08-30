@@ -16,20 +16,21 @@ export function getVirtualAccount(_req: Request, res: Response): void {
   if (!exporter) {
     throw new NotFoundError("No exporter configured");
   }
-  const account = store.getVirtualAccount(exporter.virtualAccountId);
-  if (!account) {
-    throw new NotFoundError("No virtual account configured");
-  }
 
-  const heldPositions = store
-    .getAllOrders()
-    .map((order) => ({ order, escrow: store.getEscrowPosition(order.id) }))
-    .filter((entry) => entry.escrow?.status === "Held" || entry.escrow?.status === "Disputed")
-    .map((entry) => ({
-      reference: entry.order.reference,
-      amountSgd: entry.escrow!.amountSgd,
-      status: entry.escrow!.status,
-    }));
+  const orders = store.getAllOrders();
+  const accounts = store.getAllVirtualAccounts().map((account) => {
+    const heldPositions = orders
+      .filter((order) => order.currency === account.currency)
+      .map((order) => ({ order, escrow: store.getEscrowPosition(order.id) }))
+      .filter((entry) => entry.escrow?.status === "Held" || entry.escrow?.status === "Disputed")
+      .map((entry) => ({
+        reference: entry.order.reference,
+        amount: entry.escrow!.amount,
+        status: entry.escrow!.status,
+      }));
 
-  res.json({ ...account, heldPositions });
+    return { ...account, heldPositions };
+  });
+
+  res.json({ accounts });
 }

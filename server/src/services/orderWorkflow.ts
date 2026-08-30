@@ -13,7 +13,7 @@ export function confirmDelivery(store: Store, services: Services, reference: str
   const confirmed = transitionOrder(store, reference, { type: "CONFIRM_DELIVERY" }, "buyer");
   services.escrowService.release(store, confirmed);
 
-  const quote = services.fxService.quote(confirmed.amountSgd);
+  const quote = services.fxService.quote(confirmed.amount, confirmed.currency);
   store.saveFxQuote(confirmed.id, quote);
   store.addAuditEvent({
     event: "fx.quoted",

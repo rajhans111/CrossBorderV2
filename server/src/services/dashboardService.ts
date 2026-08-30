@@ -8,6 +8,7 @@ export function getExporterDashboard(store: Store) {
     throw new NotFoundError("No exporter configured");
   }
   const virtualAccount = store.getVirtualAccount(exporter.virtualAccountId);
+  const virtualAccounts = store.getAllVirtualAccounts();
   const orders = store.getAllOrders();
   const activeOrders = orders.filter((o) => o.status !== "Completed" && o.status !== "Refunded").length;
 
@@ -24,7 +25,8 @@ export function getExporterDashboard(store: Store) {
   return {
     exporter,
     virtualAccount,
-    inEscrowSgd: virtualAccount?.escrowBalanceSgd ?? 0,
+    virtualAccounts,
+    inEscrowSgd: virtualAccount?.escrowBalance ?? 0,
     receivedThisMonthInr: round2(receivedThisMonthInr),
     fxSavedThisMonthInr: round2(fxSavedThisMonthInr),
     activeOrders,

@@ -65,6 +65,14 @@ export class Store {
     return this.virtualAccounts.get(id);
   }
 
+  getVirtualAccountByCurrency(currency: VirtualAccount["currency"]): VirtualAccount | undefined {
+    return [...this.virtualAccounts.values()].find((a) => a.currency === currency);
+  }
+
+  getAllVirtualAccounts(): VirtualAccount[] {
+    return [...this.virtualAccounts.values()];
+  }
+
   // --- Buyer ---
 
   createBuyer(input: Omit<Buyer, "id" | "portalToken">): Buyer {

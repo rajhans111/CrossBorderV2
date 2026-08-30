@@ -1,4 +1,5 @@
-import type { AuditActor, DisputeReason, Incoterm, PaymentTerms, TradeOrderEvent } from "@setu/types";
+import type { AuditActor, Currency, DisputeReason, Incoterm, PaymentTerms, TradeOrderEvent } from "@setu/types";
+import { CURRENCIES } from "@setu/types";
 import { ValidationError } from "./errors.js";
 import type { CreateOrderInput } from "./services/orderCreationService.js";
 
@@ -41,7 +42,7 @@ export function parseCreateOrderInput(body: unknown): CreateOrderInput {
   if (!isRecord(body)) {
     throw new ValidationError("Request body must be an object");
   }
-  const { buyerId, product, quantity, amountSgd, incoterm, hsCode, paymentTerms } = body;
+  const { buyerId, product, quantity, amount, currency, incoterm, hsCode, paymentTerms } = body;
 
   if (typeof buyerId !== "string" || !buyerId) {
     throw new ValidationError("buyerId is required");
@@ -52,8 +53,11 @@ export function parseCreateOrderInput(body: unknown): CreateOrderInput {
   if (typeof quantity !== "number" || !(quantity > 0)) {
     throw new ValidationError("quantity must be a positive number");
   }
-  if (typeof amountSgd !== "number" || !(amountSgd > 0)) {
-    throw new ValidationError("amountSgd must be a positive number");
+  if (typeof amount !== "number" || !(amount > 0)) {
+    throw new ValidationError("amount must be a positive number");
+  }
+  if (typeof currency !== "string" || !CURRENCIES.includes(currency as Currency)) {
+    throw new ValidationError(`currency must be one of ${CURRENCIES.join(", ")}`);
   }
   if (typeof incoterm !== "string" || !INCOTERMS.includes(incoterm as Incoterm)) {
     throw new ValidationError(`incoterm must be one of ${INCOTERMS.join(", ")}`);
@@ -69,7 +73,8 @@ export function parseCreateOrderInput(body: unknown): CreateOrderInput {
     buyerId,
     product,
     quantity,
-    amountSgd,
+    amount,
+    currency: currency as Currency,
     incoterm: incoterm as Incoterm,
     hsCode,
     paymentTerms: paymentTerms as PaymentTerms,

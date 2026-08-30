@@ -6,10 +6,11 @@ import { confirmDelivery, raiseDispute, receivePayment, refundOrder, resolveDisp
 
 function seedReadyOrder(store: Store) {
   const virtualAccount = store.createVirtualAccount({
+    currency: "SGD",
     accountNo: "SGD7788123456",
     bankName: "MAS Partner Bank (Demo)",
     swift: "XINT0SGSXXX",
-    escrowBalanceSgd: 100_000,
+    escrowBalance: 100_000,
   });
   store.createExporter({
     companyName: "Test Exports",
@@ -33,7 +34,8 @@ function seedReadyOrder(store: Store) {
     buyerId: buyer.id,
     product: "Test product",
     quantity: 10,
-    amountSgd: 40_000,
+    amount: 40_000,
+    currency: "SGD",
     incoterm: "FOB",
     hsCode: "6109.10",
     paymentTerms: "TT",
@@ -84,14 +86,14 @@ describe("orderWorkflow integration", () => {
   it("keeps the virtual account balance net-zero across a full hold/release cycle", () => {
     seedReadyOrder(store);
     const exporter = store.getExporter()!;
-    const before = store.getVirtualAccount(exporter.virtualAccountId)!.escrowBalanceSgd;
+    const before = store.getVirtualAccount(exporter.virtualAccountId)!.escrowBalance;
 
     transitionOrder(store, "XO-WF01", { type: "MARK_PAYMENT_AWAITED" }, "exporter");
     receivePayment(store, services, "XO-WF01");
     transitionOrder(store, "XO-WF01", { type: "MARK_SHIPPED" }, "exporter");
     confirmDelivery(store, services, "XO-WF01");
 
-    const after = store.getVirtualAccount(exporter.virtualAccountId)!.escrowBalanceSgd;
+    const after = store.getVirtualAccount(exporter.virtualAccountId)!.escrowBalance;
     expect(after).toBe(before);
   });
 
@@ -116,7 +118,7 @@ describe("orderWorkflow integration", () => {
   it("drives dispute -> refund and releases the held funds back out", () => {
     seedReadyOrder(store);
     const exporter = store.getExporter()!;
-    const before = store.getVirtualAccount(exporter.virtualAccountId)!.escrowBalanceSgd;
+    const before = store.getVirtualAccount(exporter.virtualAccountId)!.escrowBalance;
 
     transitionOrder(store, "XO-WF01", { type: "MARK_PAYMENT_AWAITED" }, "exporter");
     receivePayment(store, services, "XO-WF01");
@@ -125,6 +127,6 @@ describe("orderWorkflow integration", () => {
 
     expect(refunded.status).toBe("Refunded");
     expect(store.getEscrowPosition(refunded.id)?.status).toBe("Refunded");
-    expect(store.getVirtualAccount(exporter.virtualAccountId)!.escrowBalanceSgd).toBe(before);
+    expect(store.getVirtualAccount(exporter.virtualAccountId)!.escrowBalance).toBe(before);
   });
 });

@@ -1,9 +1,11 @@
+import type { Currency } from "./currency.js";
+
 export type InvoiceStatus = "Draft" | "Sent";
 
 export interface InvoiceLineItem {
   description: string;
   quantity: number;
-  unitPriceSgd: number;
+  unitPrice: number;
 }
 
 export interface Invoice {
@@ -11,6 +13,7 @@ export interface Invoice {
   orderId: string;
   from: string;
   billTo: string;
+  currency: Currency;
   lineItems: InvoiceLineItem[];
   subtotal: number;
   totalDue: number;

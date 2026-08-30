@@ -4,7 +4,7 @@ import { api } from "../../api";
 import { Card } from "../../components/Card";
 import { QueryState } from "../../components/QueryState";
 import { StatusPill } from "../../components/StatusPill";
-import { formatDate, formatSgd } from "../../lib/format";
+import { formatDate, formatMoney } from "../../lib/format";
 
 const SLA_WARN_HOURS = 72;
 
@@ -101,7 +101,7 @@ export function AdminOverview() {
                     >
                       <div>
                         <p className="font-medium text-gray-900">{order.reference}</p>
-                        <p className="text-xs text-gray-500">{formatSgd(order.amountSgd)}</p>
+                        <p className="text-xs text-gray-500">{formatMoney(order.amount, order.currency)}</p>
                       </div>
                       <div className="text-right">
                         <StatusPill status={order.status} />
@@ -126,7 +126,7 @@ export function AdminOverview() {
                   {data.unmatchedCredits.map((c) => (
                     <li key={c.id} className="rounded-lg border border-gray-100 px-4 py-2 text-sm">
                       <p className="font-medium text-gray-900">
-                        {formatSgd(c.amountSgd)} — {c.remitterName}
+                        {formatMoney(c.amount, c.currency)} — {c.remitterName}
                       </p>
                       <p className="text-xs text-gray-500">{c.note}</p>
                     </li>

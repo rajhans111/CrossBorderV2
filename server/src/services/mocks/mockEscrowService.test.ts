@@ -10,10 +10,11 @@ describe("mockEscrowService", () => {
   beforeEach(() => {
     store = new Store();
     const virtualAccount = store.createVirtualAccount({
+      currency: "SGD",
       accountNo: "SGD7788123456",
       bankName: "MAS Partner Bank (Demo)",
       swift: "XINT0SGSXXX",
-      escrowBalanceSgd: 100_000,
+      escrowBalance: 100_000,
     });
     store.createExporter({
       companyName: "Test Exports",
@@ -37,7 +38,8 @@ describe("mockEscrowService", () => {
       buyerId: buyer.id,
       product: "Test product",
       quantity: 10,
-      amountSgd: 5_000,
+      amount: 5_000,
+      currency: "SGD",
       incoterm: "FOB",
       hsCode: "6109.10",
       paymentTerms: "TT",
@@ -47,13 +49,12 @@ describe("mockEscrowService", () => {
   });
 
   function virtualAccountBalance(): number {
-    const exporter = store.getExporter()!;
-    return store.getVirtualAccount(exporter.virtualAccountId)!.escrowBalanceSgd;
+    return store.getVirtualAccountByCurrency("SGD")!.escrowBalance;
   }
 
   it("hold() creates a Held position with one event and increases the VA balance", () => {
     const position = mockEscrowService.hold(store, order);
-    expect(position).toMatchObject({ orderId: order.id, amountSgd: 5_000, status: "Held" });
+    expect(position).toMatchObject({ orderId: order.id, amount: 5_000, currency: "SGD", status: "Held" });
     expect(position.events).toHaveLength(1);
     expect(virtualAccountBalance()).toBe(105_000);
   });

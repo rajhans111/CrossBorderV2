@@ -6,7 +6,7 @@ const MODULES = [
   { to: "/exporter/orders", label: "Orders" },
   { to: "/exporter/orders/new", label: "New order" },
   { to: "/exporter/onboarding", label: "Onboarding" },
-  { to: "/exporter/virtual-account", label: "Virtual SGD" },
+  { to: "/exporter/virtual-account", label: "Virtual accounts" },
 ];
 
 export function ExporterShell() {
