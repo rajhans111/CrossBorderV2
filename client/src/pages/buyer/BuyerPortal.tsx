@@ -182,6 +182,14 @@ export function BuyerPortal() {
                   <p className="font-semibold text-green-900">Order complete — thank you!</p>
                 </Card>
               )}
+
+              {data.buyer && (
+                <p className="text-center text-sm">
+                  <a href={`/buyer-workspace/${data.buyer.portalToken}`} className="text-primary hover:underline">
+                    View all your orders →
+                  </a>
+                </p>
+              )}
             </>
           )}
         </QueryState>

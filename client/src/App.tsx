@@ -9,6 +9,7 @@ import { Onboarding } from "./pages/exporter/Onboarding";
 import { VirtualAccountPage } from "./pages/exporter/VirtualAccountPage";
 import { AdminOverview } from "./pages/admin/AdminOverview";
 import { BuyerPortal } from "./pages/buyer/BuyerPortal";
+import { BuyerWorkspace } from "./pages/buyer/BuyerWorkspace";
 
 export function App() {
   return (
@@ -29,6 +30,7 @@ export function App() {
       </Route>
 
       <Route path="/buyer/:token" element={<BuyerPortal />} />
+      <Route path="/buyer-workspace/:token" element={<BuyerWorkspace />} />
 
       <Route path="*" element={<Navigate to="/exporter/dashboard" replace />} />
     </Routes>

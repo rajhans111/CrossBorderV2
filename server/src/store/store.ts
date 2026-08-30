@@ -18,6 +18,7 @@ export class Store {
   private exporters = new Map<string, Exporter>();
   private virtualAccounts = new Map<string, VirtualAccount>();
   private buyers = new Map<string, Buyer>();
+  private buyerIdByPortalToken = new Map<string, string>();
   private tradeOrders = new Map<string, TradeOrder>();
   private orderIdByReference = new Map<string, string>();
   private orderIdByToken = new Map<string, string>();
@@ -66,10 +67,16 @@ export class Store {
 
   // --- Buyer ---
 
-  createBuyer(input: Omit<Buyer, "id">): Buyer {
-    const buyer: Buyer = { ...input, id: randomUUID() };
+  createBuyer(input: Omit<Buyer, "id" | "portalToken">): Buyer {
+    const buyer: Buyer = { ...input, id: randomUUID(), portalToken: randomUUID() };
     this.buyers.set(buyer.id, buyer);
+    this.buyerIdByPortalToken.set(buyer.portalToken, buyer.id);
     return buyer;
+  }
+
+  getBuyerByPortalToken(token: string): Buyer | undefined {
+    const id = this.buyerIdByPortalToken.get(token);
+    return id ? this.buyers.get(id) : undefined;
   }
 
   getBuyer(id: string): Buyer | undefined {
@@ -221,6 +228,7 @@ export class Store {
     this.exporters.clear();
     this.virtualAccounts.clear();
     this.buyers.clear();
+    this.buyerIdByPortalToken.clear();
     this.tradeOrders.clear();
     this.orderIdByReference.clear();
     this.orderIdByToken.clear();

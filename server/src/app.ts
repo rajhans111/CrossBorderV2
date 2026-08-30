@@ -7,6 +7,7 @@ import { healthRouter } from "./routes/health.js";
 import { ordersRouter } from "./routes/orders.js";
 import { exporterRouter } from "./routes/exporter.js";
 import { buyerRouter } from "./routes/buyer.js";
+import { buyerWorkspaceRouter } from "./routes/buyerWorkspace.js";
 import { adminRouter } from "./routes/admin.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
@@ -24,6 +25,7 @@ export function createApp() {
   app.use("/api/orders", ordersRouter);
   app.use("/api/exporter", exporterRouter);
   app.use("/api/buyer", buyerRouter);
+  app.use("/api/buyer-workspace", buyerWorkspaceRouter);
   app.use("/api/admin", adminRouter);
 
   app.use("/api", (_req, res) => {

@@ -46,6 +46,9 @@ export function OrderDetail() {
   });
 
   const buyerLink = order ? `${window.location.origin}/buyer/${order.buyerToken}` : "";
+  const buyerWorkspaceLink = order?.buyer
+    ? `${window.location.origin}/buyer-workspace/${order.buyer.portalToken}`
+    : "";
 
   return (
     <div className="space-y-6">
@@ -155,29 +158,45 @@ export function OrderDetail() {
                     </>
                   )}
 
-                  <div className="border-t border-gray-100 pt-4 text-sm">
-                    <p className="mb-1 text-gray-500">
-                      Buyer order:{" "}
-                      <a
-                        href={buyerLink}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="break-all text-primary hover:underline"
+                  <div className="space-y-3 border-t border-gray-100 pt-4 text-sm">
+                    <div>
+                      <p className="mb-1 text-gray-500">
+                        Buyer order:{" "}
+                        <a
+                          href={buyerLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="break-all text-primary hover:underline"
+                        >
+                          {buyerLink}
+                        </a>
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard?.writeText(buyerLink);
+                          setCopied(true);
+                          setTimeout(() => setCopied(false), 1500);
+                        }}
+                        className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
                       >
-                        {buyerLink}
-                      </a>
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard?.writeText(buyerLink);
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 1500);
-                      }}
-                      className="mt-1 rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      {copied ? "Copied!" : "Copy link"}
-                    </button>
+                        {copied ? "Copied!" : "Copy link"}
+                      </button>
+                    </div>
+
+                    {buyerWorkspaceLink && (
+                      <p className="text-gray-500">
+                        Buyer workspace:{" "}
+                        <a
+                          href={buyerWorkspaceLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="break-all text-primary hover:underline"
+                        >
+                          {buyerWorkspaceLink}
+                        </a>
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

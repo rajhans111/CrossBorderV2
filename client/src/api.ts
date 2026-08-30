@@ -57,6 +57,11 @@ export interface BuyerPortalView {
   dispute?: Dispute;
 }
 
+export interface BuyerWorkspaceView {
+  buyer: Buyer;
+  orders: TradeOrder[];
+}
+
 export interface AdminOverview {
   exporter?: Exporter;
   orders: TradeOrder[];
@@ -123,6 +128,7 @@ export const api = {
 
   // Buyer (magic link)
   getBuyerPortal: (token: string) => request<BuyerPortalView>(`/buyer/${token}`),
+  getBuyerWorkspace: (token: string) => request<BuyerWorkspaceView>(`/buyer-workspace/${token}`),
   buyerPay: (token: string) => request<TradeOrder>(`/buyer/${token}/pay`, { method: "POST" }),
   buyerConfirm: (token: string) => request<TradeOrder>(`/buyer/${token}/confirm`, { method: "POST" }),
   buyerDispute: (token: string, reason: DisputeReason) =>
